@@ -103,16 +103,6 @@ public class AuthController {
         
         return Result.success("登出成功");
     }
-
-    /**
-     * 健康检查
-     *
-     * @return 健康状态
-     */
-    @GetMapping("/health")
-    public Result<String> health() {
-        return Result.success("系统运行正常");
-    }
 }
 
 
