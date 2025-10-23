@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.can.water_law_exam_backend.entity.Admin;
 import org.can.water_law_exam_backend.entity.AccountUser;
+import org.can.water_law_exam_backend.entity.Role;
 import org.can.water_law_exam_backend.mapper.AdminMapper;
 import org.can.water_law_exam_backend.mapper.AccountUserMapper;
+import org.can.water_law_exam_backend.mapper.RoleMapper;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,7 +15,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 自定义用户详情服务
@@ -26,6 +31,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private final AdminMapper adminMapper;
     private final AccountUserMapper accountUserMapper;
+    private final RoleMapper roleMapper;
     private final PasswordEncoder passwordEncoder;
 
     /**
@@ -119,14 +125,26 @@ public class CustomUserDetailsService implements UserDetailsService {
             password = encryptedPassword;
         }
 
-        // 创建权限列表（学员拥有ROLE_USER角色）
+        // 创建权限列表（学员默认拥有ROLE_USER角色，并加载数据库中的角色）
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        
+        // 从数据库加载用户的角色
+        List<Role> roles = roleMapper.selectByUserId(user.getId());
+        if (roles != null && !roles.isEmpty()) {
+            List<SimpleGrantedAuthority> roleAuthorities = roles.stream()
+                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRoleName().toUpperCase()))
+                    .collect(Collectors.toList());
+            authorities.addAll(roleAuthorities);
+        }
+
         return new LoginUser(
                 user.getId(),
                 user.getIdNo(),
                 password,
                 user.getName(),
                 "user",
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+                authorities
         );
     }
 

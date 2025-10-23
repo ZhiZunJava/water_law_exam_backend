@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class Result<T> {
 
     /**
-     * 状态码：200表示成功，其他表示失败
+     * 状态码：0表示成功，1表示失败
      */
     private Integer code;
 
@@ -33,28 +33,28 @@ public class Result<T> {
      * 成功返回（无数据）
      */
     public static <T> Result<T> success() {
-        return new Result<>(200, "操作成功", null);
+        return new Result<>(0, "操作成功", null);
     }
 
     /**
      * 成功返回（带数据）
      */
     public static <T> Result<T> success(T data) {
-        return new Result<>(200, "操作成功", data);
+        return new Result<>(0, "操作成功", data);
     }
 
     /**
      * 成功返回（带消息和数据）
      */
     public static <T> Result<T> success(String msg, T data) {
-        return new Result<>(200, msg, data);
+        return new Result<>(0, msg, data);
     }
 
     /**
      * 失败返回
      */
     public static <T> Result<T> error(String msg) {
-        return new Result<>(500, msg, null);
+        return new Result<>(1, msg, null);
     }
 
     /**

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.can.water_law_exam_backend.mapper.UserRoleMapper">
+
+    <resultMap id="BaseResultMap" type="org.can.water_law_exam_backend.entity.UserRole">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="role_id" property="roleId"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_user_role (user_id, role_id, create_time)
+        VALUES (#{userId}, #{roleId}, NOW())
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM tb_user_role
+        WHERE user_id = #{userId} AND role_id = #{roleId}
+    </delete>
+
+    <delete id="deleteByUserId">
+        DELETE FROM tb_user_role
+        WHERE user_id = #{userId}
+    </delete>
+
+    <select id="existsByUserIdAndRoleId" resultType="int">
+        SELECT COUNT(*)
+        FROM tb_user_role
+        WHERE user_id = #{userId} AND role_id = #{roleId}
+    </select>
+
+</mapper>
+
