@@ -1,0 +1,89 @@
+spring:
+  application:
+    name: water_law_exam_backend
+
+  # 数据源配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/water_law_exam?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # HikariCP连接池配置
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      auto-commit: true
+      idle-timeout: 30000
+      pool-name: WaterLawExamHikariCP
+      max-lifetime: 1800000
+      connection-timeout: 30000
+
+  # Redis配置
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 
+      database: 0
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 0
+
+  # Jackson配置
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+    serialization:
+      write-dates-as-timestamps: false
+
+  # 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
+
+  # MVC配置 - 处理404错误
+  mvc:
+    throw-exception-if-no-handler-found: true
+  
+  # 静态资源配置 - 禁用默认静态资源映射
+  web:
+    resources:
+      add-mappings: false
+
+# MyBatis配置
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: org.can.water_law_exam_backend.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+    cache-enabled: true
+    lazy-loading-enabled: true
+
+# JWT配置
+jwt:
+  secret: water-law-exam-security-key-2024-please-change-this-in-production
+  expiration: 7200000  # token过期时间，单位毫秒（2小时）
+  header: Authorization  # HTTP请求头名称
+  token-prefix: "hi.#%a0a"  # Token前缀
+
+# 服务器配置
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# 日志配置
+logging:
+  level:
+    root: info
+    org.can.water_law_exam_backend: debug
+    org.springframework.security: debug
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n"
+

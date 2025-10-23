@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.can.water_law_exam_backend.mapper.AdminMapper">
+
+    <resultMap id="BaseResultMap" type="org.can.water_law_exam_backend.entity.Admin">
+        <id column="id" property="id"/>
+        <result column="user_no" property="userNo"/>
+        <result column="name" property="name"/>
+        <result column="pwd" property="pwd"/>
+        <result column="locked" property="locked"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_no, name, pwd, locked, create_time, update_time
+    </sql>
+
+    <select id="selectByUserNo" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM tb_admin
+        WHERE user_no = #{userNo}
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM tb_admin
+        WHERE id = #{id}
+    </select>
+
+    <update id="updatePassword">
+        UPDATE tb_admin
+        SET pwd = #{pwd},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+</mapper>
+
+
