@@ -28,6 +28,11 @@ public class AccountUserVO {
     private Long orgId;
 
     /**
+     * 所属单位名称
+     */
+    private String orgName;
+
+    /**
      * 身份证号
      */
     private String idNo;

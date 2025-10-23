@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.can.water_law_exam_backend.common.Result;
 import org.can.water_law_exam_backend.config.JwtProperties;
+import org.can.water_law_exam_backend.service.TokenService;
 import org.can.water_law_exam_backend.util.JwtUtil;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,6 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final JwtProperties jwtProperties;
     private final ObjectMapper objectMapper;
+    private final TokenService tokenService;
 
     @Override
     protected void doFilterInternal(
@@ -55,9 +57,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 提取Token（去除前缀）
             String token = authHeader.substring(jwtProperties.getTokenPrefix().length());
 
-            // 验证Token
+            // 1. 验证Token格式和签名
             if (!jwtUtil.validateToken(token)) {
                 handleAuthenticationFailure(response, "Token无效或已过期");
+                return;
+            }
+
+            // 2. 验证Token是否在Redis中存在（实现token撤销功能）
+            if (!tokenService.validateToken(token)) {
+                handleAuthenticationFailure(response, "Token已失效，请重新登录");
                 return;
             }
 

@@ -12,6 +12,7 @@ import org.can.water_law_exam_backend.dto.response.accountuser.AccountUserVO;
 import org.can.water_law_exam_backend.dto.response.common.PageResult;
 import org.can.water_law_exam_backend.service.AccountUserService;
 import org.can.water_law_exam_backend.service.RoleService;
+import org.can.water_law_exam_backend.service.TokenService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +29,7 @@ public class AccountUserController {
 
     private final AccountUserService accountUserService;
     private final RoleService roleService;
+    private final TokenService tokenService;
 
     /**
      * 1.1 添加学员
@@ -159,6 +161,25 @@ public class AccountUserController {
         log.info("移除用户角色请求：uid={}, rid={}", request.getUid(), request.getRid());
         roleService.removeUserRole(request.getUid(), request.getRid());
         return Result.success("移除角色成功");
+    }
+
+    /**
+     * 强制用户下线（撤销用户token）
+     * 请求路径：/au/forceLogout/{id}
+     * 请求方式：POST
+     *
+     * @param id 用户ID
+     * @return 成功响应
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/forceLogout/{id}")
+    public Result<String> forceLogout(@PathVariable Long id) {
+        log.info("强制用户下线请求：id={}", id);
+        if (id == null || id <= 0) {
+            return Result.error(1, "用户ID必须大于0");
+        }
+        tokenService.forceLogout(id);
+        return Result.success("用户已被强制下线");
     }
 }
 

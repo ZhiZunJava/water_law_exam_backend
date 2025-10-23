@@ -26,6 +26,11 @@ public class AccountUser {
     private Long orgId;
 
     /**
+     * 所属单位名称（非数据库字段，仅用于查询结果映射）
+     */
+    private transient String orgName;
+
+    /**
      * 身份证号
      */
     private String idNo;

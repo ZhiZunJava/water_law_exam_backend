@@ -10,6 +10,7 @@ import org.can.water_law_exam_backend.dto.request.city.CityUpdateRequest;
 import org.can.water_law_exam_backend.dto.response.common.PageResult;
 import org.can.water_law_exam_backend.entity.City;
 import org.can.water_law_exam_backend.service.CityService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -98,6 +99,7 @@ public class CityController {
      * @param request 添加请求
      * @return 结果
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/add")
     public Result<Void> addCity(@Valid @RequestBody CityAddRequest request) {
         log.info("添加城市：{}", request.getCity());
@@ -111,6 +113,7 @@ public class CityController {
      * @param request 更新请求
      * @return 结果
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/update")
     public Result<Void> updateCity(@Valid @RequestBody CityUpdateRequest request) {
         log.info("更新城市信息：id={}, city={}", request.getCityId(), request.getCity());
@@ -124,6 +127,7 @@ public class CityController {
      * @param id 城市ID
      * @return 结果
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/delete/{id}")
     public Result<Void> deleteCity(@PathVariable Integer id) {
         log.info("删除城市：id={}", id);
@@ -137,6 +141,7 @@ public class CityController {
      * @param ids 城市ID列表
      * @return 结果
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/delete")
     public Result<Void> deleteCitiesBatch(@RequestBody List<Integer> ids) {
         log.info("批量删除城市：ids={}", ids);

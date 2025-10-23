@@ -21,7 +21,7 @@ public class LoginUser implements UserDetails {
     /**
      * 用户名
      */
-    private String username;
+    private String user_no;
 
     /**
      * 密码
@@ -51,9 +51,9 @@ public class LoginUser implements UserDetails {
     public LoginUser() {
     }
 
-    public LoginUser(Long userId, String username, String password, String name, String userType, Boolean enabled) {
+    public LoginUser(Long userId, String user_no, String password, String name, String userType, Boolean enabled) {
         this.userId = userId;
-        this.username = username;
+        this.user_no = user_no;
         this.password = password;
         this.name = name;
         this.userType = userType;
@@ -61,9 +61,9 @@ public class LoginUser implements UserDetails {
         this.authorities = Collections.emptyList();
     }
 
-    public LoginUser(Long userId, String username, String password, String name, String userType, Collection<? extends GrantedAuthority> authorities) {
+    public LoginUser(Long userId, String user_no, String password, String name, String userType, Collection<? extends GrantedAuthority> authorities) {
         this.userId = userId;
-        this.username = username;
+        this.user_no = user_no;
         this.password = password;
         this.name = name;
         this.userType = userType;
@@ -83,7 +83,7 @@ public class LoginUser implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.username;
+        return this.user_no;
     }
 
     @Override

@@ -22,3 +22,4 @@ public class SetRoleRequest {
     private Integer rid;
 }
 
+

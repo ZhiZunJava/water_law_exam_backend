@@ -15,6 +15,20 @@
         <result column="update_time" property="updateTime"/>
     </resultMap>
 
+    <!-- 扩展ResultMap，包含组织名称 -->
+    <resultMap id="AccountUserWithOrgResultMap" type="org.can.water_law_exam_backend.entity.AccountUser">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="org_id" property="orgId"/>
+        <result column="org_name" property="orgName"/>
+        <result column="id_no" property="idNo"/>
+        <result column="phone" property="phone"/>
+        <result column="pwd" property="pwd"/>
+        <result column="locked" property="locked"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
     <sql id="Base_Column_List">
         id, name, org_id, id_no, phone, pwd, locked, create_time, update_time
     </sql>
@@ -26,11 +40,21 @@
         WHERE id_no = #{idNo}
     </select>
 
-    <select id="selectById" resultMap="BaseResultMap">
+    <select id="selectById" resultMap="AccountUserWithOrgResultMap">
         SELECT
-        <include refid="Base_Column_List"/>
-        FROM tb_account_user
-        WHERE id = #{id}
+            u.id,
+            u.name,
+            u.org_id,
+            o.org_name,
+            u.id_no,
+            u.phone,
+            u.pwd,
+            u.locked,
+            u.create_time,
+            u.update_time
+        FROM tb_account_user u
+        LEFT JOIN tb_organization o ON u.org_id = o.id
+        WHERE u.id = #{id}
     </select>
 
     <update id="updatePassword">
@@ -78,19 +102,29 @@
         WHERE id = #{id}
     </update>
 
-    <select id="selectByPage" resultMap="BaseResultMap">
+    <select id="selectByPage" resultMap="AccountUserWithOrgResultMap">
         SELECT
-        <include refid="Base_Column_List"/>
-        FROM tb_account_user
+            u.id,
+            u.name,
+            u.org_id,
+            o.org_name,
+            u.id_no,
+            u.phone,
+            u.pwd,
+            u.locked,
+            u.create_time,
+            u.update_time
+        FROM tb_account_user u
+        LEFT JOIN tb_organization o ON u.org_id = o.id
         <where>
             <if test="orgId != null">
-                AND org_id = #{orgId}
+                AND u.org_id = #{orgId}
             </if>
             <if test="key != null and key != ''">
-                AND (name LIKE CONCAT('%', #{key}, '%') OR id_no LIKE CONCAT('%', #{key}, '%'))
+                AND (u.name LIKE CONCAT('%', #{key}, '%') OR u.id_no LIKE CONCAT('%', #{key}, '%'))
             </if>
         </where>
-        ORDER BY create_time DESC
+        ORDER BY u.create_time DESC
         LIMIT #{offset}, #{limit}
     </select>
 
