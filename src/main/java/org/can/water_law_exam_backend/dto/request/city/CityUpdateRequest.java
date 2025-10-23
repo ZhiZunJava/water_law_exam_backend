@@ -14,12 +14,12 @@ public class CityUpdateRequest {
      * 城市ID
      */
     @NotNull(message = "城市ID不能为空")
-    private Long id;
+    private Integer cityId;
 
     /**
      * 城市名称
      */
     @NotBlank(message = "城市名称不能为空")
-    private String cityName;
+    private String city;
 }
 

@@ -13,6 +13,6 @@ public class CityAddRequest {
      * 城市名称
      */
     @NotBlank(message = "城市名称不能为空")
-    private String cityName;
+    private String city;
 }
 

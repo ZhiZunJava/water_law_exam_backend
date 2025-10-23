@@ -56,7 +56,7 @@ public class CityService {
         List<City> list = cityMapper.selectByPage(offset, request.getSize(), key);
 
         // 统计总数（如果需要）
-        Long total;
+        long total;
         if (request.getTotal() != null && request.getTotal() >= 0) {
             // 使用传入的总数，避免重复统计
             total = request.getTotal().longValue();

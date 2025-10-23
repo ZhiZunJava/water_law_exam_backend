@@ -22,12 +22,6 @@ public class LoginRequest {
     private String password;
 
     /**
-     * 用户类型：admin（管理员）或 user（普通用户）
-     */
-    @NotBlank(message = "用户类型不能为空")
-    private String userType;
-
-    /**
      * 验证码ID
      */
     @NotBlank(message = "验证码ID不能为空")
