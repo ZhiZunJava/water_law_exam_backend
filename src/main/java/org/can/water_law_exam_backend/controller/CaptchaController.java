@@ -3,7 +3,7 @@ package org.can.water_law_exam_backend.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.can.water_law_exam_backend.common.Result;
-import org.can.water_law_exam_backend.dto.CaptchaResponse;
+import org.can.water_law_exam_backend.dto.response.captcha.CaptchaResponse;
 import org.can.water_law_exam_backend.service.CaptchaService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -4,8 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.can.water_law_exam_backend.common.Result;
-import org.can.water_law_exam_backend.dto.LoginRequest;
-import org.can.water_law_exam_backend.dto.LoginResponse;
+import org.can.water_law_exam_backend.dto.request.auth.LoginRequest;
+import org.can.water_law_exam_backend.dto.response.auth.LoginResponse;
 import org.can.water_law_exam_backend.service.AuthService;
 import org.springframework.web.bind.annotation.*;
 

@@ -3,8 +3,9 @@ package org.can.water_law_exam_backend.service;
 import cn.hutool.core.lang.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.can.water_law_exam_backend.dto.CaptchaResponse;
-import org.can.water_law_exam_backend.utils.CaptchaUtil;
+import org.can.water_law_exam_backend.dto.response.captcha.CaptchaResponse;
+import org.can.water_law_exam_backend.util.CaptchaUtil;
+import org.can.water_law_exam_backend.vo.CaptchaVO;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +38,7 @@ public class CaptchaService {
      */
     public CaptchaResponse generateCaptcha() {
         // 生成验证码
-        CaptchaUtil.CaptchaResult result = CaptchaUtil.generate();
+        CaptchaVO result = CaptchaUtil.generate();
         
         // 生成唯一标识
         String captchaId = UUID.randomUUID().toString(true);

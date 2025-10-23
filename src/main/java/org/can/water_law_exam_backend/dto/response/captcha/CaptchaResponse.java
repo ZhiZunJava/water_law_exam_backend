@@ -1,11 +1,11 @@
-package org.can.water_law_exam_backend.dto;
+package org.can.water_law_exam_backend.dto.response.captcha;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 验证码响应
+ * 验证码响应DTO
  */
 @Data
 @NoArgsConstructor

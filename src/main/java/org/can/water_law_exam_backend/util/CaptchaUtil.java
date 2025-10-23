@@ -1,6 +1,6 @@
-package org.can.water_law_exam_backend.utils;
+package org.can.water_law_exam_backend.util;
 
-import lombok.Data;
+import org.can.water_law_exam_backend.vo.CaptchaVO;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -50,14 +50,14 @@ public class CaptchaUtil {
      *
      * @return 验证码结果（包含验证码文本和图片Base64编码）
      */
-    public static CaptchaResult generate() {
+    public static CaptchaVO generate() {
         // 生成随机验证码文本
         String code = generateCode();
         
         // 生成验证码图片
         String imageBase64 = generateImage(code);
         
-        return new CaptchaResult(code, imageBase64);
+        return new CaptchaVO(code, imageBase64);
     }
 
     /**
@@ -159,27 +159,6 @@ public class CaptchaUtil {
         int g = random.nextInt(max - min) + min;
         int b = random.nextInt(max - min) + min;
         return new Color(r, g, b);
-    }
-
-    /**
-     * 验证码生成结果
-     */
-    @Data
-    public static class CaptchaResult {
-        /**
-         * 验证码文本
-         */
-        private String code;
-        
-        /**
-         * 验证码图片Base64编码
-         */
-        private String imageBase64;
-
-        public CaptchaResult(String code, String imageBase64) {
-            this.code = code;
-            this.imageBase64 = imageBase64;
-        }
     }
 }
 

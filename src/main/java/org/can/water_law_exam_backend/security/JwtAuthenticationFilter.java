@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.can.water_law_exam_backend.common.Result;
 import org.can.water_law_exam_backend.config.JwtProperties;
-import org.can.water_law_exam_backend.utils.JwtUtil;
+import org.can.water_law_exam_backend.util.JwtUtil;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;

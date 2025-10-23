@@ -1,4 +1,4 @@
-package org.can.water_law_exam_backend.utils;
+package org.can.water_law_exam_backend.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -173,6 +173,4 @@ public class JwtUtil {
         return generateToken(userId, username, userType);
     }
 }
-
-
 
