@@ -70,7 +70,7 @@ jwt:
   secret: water-law-exam-security-key-2024-please-change-this-in-production
   expiration: 7200000  # token过期时间，单位毫秒（2小时）
   header: Authorization  # HTTP请求头名称
-  token-prefix: "hi.#%a0a"  # Token前缀
+  token-prefix: "Bearer "  # Token前缀
 
 # 服务器配置
 server:
