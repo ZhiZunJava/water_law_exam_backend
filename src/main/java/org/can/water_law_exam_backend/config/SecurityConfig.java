@@ -82,9 +82,10 @@ public class SecurityConfig {
 
                 // 授权配置
                 .authorizeHttpRequests(auth -> auth
-                        // 白名单：登录接口、健康检查等
+                        // 白名单：登录接口、验证码接口、健康检查等
                         .requestMatchers(
                                 "/auth/**",
+                                "/captcha/**",
                                 "/actuator/**",
                                 "/error"
                         ).permitAll()

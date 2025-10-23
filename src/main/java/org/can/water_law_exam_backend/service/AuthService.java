@@ -25,6 +25,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final JwtProperties jwtProperties;
+    private final CaptchaService captchaService;
 
     /**
      * 管理员登录
@@ -54,8 +55,18 @@ public class AuthService {
      * @return 登录响应
      */
     private LoginResponse login(LoginRequest request, String userType) {
+        // 1. 验证验证码
+        boolean captchaValid = captchaService.verifyCaptcha(
+                request.getCaptchaId(),
+                request.getCaptchaCode()
+        );
+        if (!captchaValid) {
+            log.warn("验证码验证失败：用户={}, 验证码ID={}", request.getUsername(), request.getCaptchaId());
+            throw new BusinessException(400, "验证码错误或已过期");
+        }
+
         try {
-            // 构造用户名（格式：userType:username）
+            // 2. 构造用户名（格式：userType:username）
             // 例如：admin:admin 或 user:身份证号
             String fullUsername = userType + ":" + request.getUsername();
 
@@ -90,11 +101,14 @@ public class AuthService {
             );
 
         } catch (AuthenticationException e) {
-            log.warn("登录失败：{}", request.getUsername());
+            log.warn("认证失败：用户={}, 类型={}, 原因={}", request.getUsername(), userType, e.getMessage());
             throw new BusinessException(401, "用户名或密码错误");
+        } catch (BusinessException e) {
+            // 重新抛出业务异常，保持原有的错误码和消息
+            throw e;
         } catch (Exception e) {
-            log.error("登录异常：", e);
-            throw new BusinessException("登录失败，请稍后重试");
+            log.error("登录异常：用户={}, 类型={}", request.getUsername(), userType, e);
+            throw new BusinessException(500, "登录失败，请稍后重试");
         }
     }
 }
