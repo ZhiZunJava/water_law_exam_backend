@@ -48,34 +48,19 @@ public class CityController {
      * @return 分页结果
      */
     @GetMapping("/pages")
-    public Result<PageResult<City>> getCitiesByPage(
-            @RequestParam Integer page,
-            @RequestParam Integer size,
-            @RequestParam(required = false) Integer total,
-            @RequestParam(required = false) String key) {
+    public Result<PageResult<City>> getCitiesByPage( @Valid @RequestBody CityPageRequest request) {
         
         // 参数校验
-        if (page == null || page < 1) {
+        if (request.getPage() == null || request.getPage() < 1) {
             return Result.error(400, "页码必须大于0");
         }
+        Integer size = request.getSize();
         if (size == null || size < 1 || size > 200) {
             return Result.error(400, "页大小必须在1-200之间");
         }
 
-        log.info("分页查询城市列表：page={}, size={}, total={}, key={}", page, size, total, key);
-        
-        // 构造请求对象
-        CityPageRequest request = new CityPageRequest();
-        request.setPage(page);
-        request.setSize(size);
-        request.setTotal(total);
-        
-        if (key != null && !key.trim().isEmpty()) {
-            CityPageRequest.CityPageParam param = new CityPageRequest.CityPageParam();
-            param.setKey(key);
-            request.setParam(param);
-        }
-        
+        log.info("分页查询城市列表：page={}, size={}, total={}, key={}", request.getPage(), size, request.getTotal(), request.getParam().getKey());
+
         PageResult<City> result = cityService.getCitiesByPage(request);
         return Result.success(result);
     }
