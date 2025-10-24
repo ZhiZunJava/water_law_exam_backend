@@ -84,26 +84,46 @@ public class AuthController {
 
     /**
      * 登出（从Redis删除Token）
+     * 无论token是否存在或过期，都返回成功，确保用户体验
      *
      * @param request HTTP请求
      * @return 成功响应
      */
     @PostMapping("/logout")
     public Result<String> logout(HttpServletRequest request) {
-        // 获取请求头中的Token
-        String authHeader = request.getHeader(jwtProperties.getHeader());
-        
-        if (authHeader != null && authHeader.startsWith(jwtProperties.getTokenPrefix())) {
-            // 提取Token（去除前缀）
-            String token = authHeader.substring(jwtProperties.getTokenPrefix().length());
+        try {
+            // 获取请求头中的Token
+            String authHeader = request.getHeader(jwtProperties.getHeader());
             
-            // 从Redis中删除Token
+            if (authHeader == null || authHeader.trim().isEmpty()) {
+                log.info("登出请求：未提供Token，直接返回成功");
+                return Result.success("登出成功");
+            }
+            
+            if (!authHeader.startsWith(jwtProperties.getTokenPrefix())) {
+                log.warn("登出请求：Token格式错误，但仍返回成功");
+                return Result.success("登出成功");
+            }
+            
+            // 提取Token（去除前缀）
+            String token = authHeader.substring(jwtProperties.getTokenPrefix().length()).trim();
+            
+            if (token.isEmpty()) {
+                log.info("登出请求：Token为空，直接返回成功");
+                return Result.success("登出成功");
+            }
+            
+            // 尝试从Redis中删除Token（即使token已过期或不存在，删除操作也不会报错）
             tokenService.removeToken(token);
             
             log.info("用户登出成功，Token已从Redis删除");
+            return Result.success("登出成功");
+            
+        } catch (Exception e) {
+            // 即使发生异常，也返回成功，因为登出的目的就是让用户退出
+            log.warn("登出过程发生异常，但仍返回成功：{}", e.getMessage());
+            return Result.success("登出成功");
         }
-        
-        return Result.success("登出成功");
     }
 
     /**

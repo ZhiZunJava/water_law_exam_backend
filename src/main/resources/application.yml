@@ -46,11 +46,7 @@ spring:
       max-file-size: 10MB
       max-request-size: 100MB
 
-  # MVC配置 - 处理404错误
-  mvc:
-    throw-exception-if-no-handler-found: true
-  
-  # 静态资源配置 - 禁用默认静态资源映射
+  # 静态资源配置 - 禁用默认静态资源映射（让404能被自定义错误处理器捕获）
   web:
     resources:
       add-mappings: false
@@ -77,6 +73,15 @@ server:
   port: 8080
   servlet:
     context-path: /api
+  # 错误处理配置
+  error:
+    # 显示错误详情（开发环境可设为always，生产环境建议never）
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: never
+    include-exception: false
+    # 错误页面路径（Spring Boot会将所有错误转发到这个路径）
+    path: /error
 
 # 日志配置
 logging:

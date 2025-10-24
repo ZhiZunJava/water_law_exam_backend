@@ -13,12 +13,11 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.NoHandlerFoundException;
-
 import java.util.stream.Collectors;
 
 /**
  * 全局异常处理器
+ * 注意：404、500等HTTP错误由CustomErrorController统一处理
  */
 @Slf4j
 @RestControllerAdvice
@@ -31,15 +30,6 @@ public class GlobalExceptionHandler {
     public Result<Void> handleBusinessException(BusinessException e) {
         log.error("业务异常：{}", e.getMessage());
         return Result.error(e.getCode(), e.getMessage());
-    }
-
-    /**
-     * 404异常 - 请求的处理器不存在
-     */
-    @ExceptionHandler(NoHandlerFoundException.class)
-    public Result<Void> handleNoHandlerFoundException(NoHandlerFoundException e, HttpServletRequest request) {
-        log.warn("404错误：请求路径 {} 不存在", request.getRequestURI());
-        return Result.error(404, "请求的资源不存在：" + request.getRequestURI());
     }
 
     /**
