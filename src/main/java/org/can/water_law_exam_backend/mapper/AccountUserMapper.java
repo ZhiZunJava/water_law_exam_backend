@@ -117,6 +117,14 @@ public interface AccountUserMapper {
      * @return 学员信息
      */
     AccountUser selectByPhone(@Param("phone") String phone);
+
+    /**
+     * 根据单位ID查询单位名称
+     *
+     * @param orgId 单位ID
+     * @return 单位名称
+     */
+    String selectOrgNameById(@Param("orgId") Long orgId);
 }
 
 

@@ -148,6 +148,13 @@
         WHERE phone = #{phone}
     </select>
 
+    <!-- 根据单位ID查询单位名称 -->
+    <select id="selectOrgNameById" resultType="string">
+        SELECT org_name
+        FROM tb_organization
+        WHERE id = #{orgId}
+    </select>
+
 </mapper>
 
 

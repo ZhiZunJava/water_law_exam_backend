@@ -30,5 +30,3 @@ public class Role {
      */
     private LocalDateTime createTime;
 }
-
-

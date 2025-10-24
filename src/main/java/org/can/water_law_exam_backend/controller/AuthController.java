@@ -7,8 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.can.water_law_exam_backend.common.Result;
 import org.can.water_law_exam_backend.config.JwtProperties;
 import org.can.water_law_exam_backend.dto.request.auth.LoginRequest;
+import org.can.water_law_exam_backend.dto.request.auth.RegisterRequest;
 import org.can.water_law_exam_backend.dto.response.auth.CurrentUserResponse;
 import org.can.water_law_exam_backend.dto.response.auth.LoginResponse;
+import org.can.water_law_exam_backend.dto.response.auth.RegisterResponse;
 import org.can.water_law_exam_backend.service.AuthService;
 import org.can.water_law_exam_backend.service.TokenService;
 import org.springframework.web.bind.annotation.*;
@@ -102,6 +104,20 @@ public class AuthController {
         }
         
         return Result.success("登出成功");
+    }
+
+    /**
+     * 用户注册
+     *
+     * @param request 注册请求
+     * @return 注册响应
+     */
+    @PostMapping("/register")
+    public Result<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) {
+        log.info("用户注册请求：姓名={}, 身份证号={}, 手机号={}", 
+                request.getName(), request.getIdNo(), request.getPhone());
+        RegisterResponse response = authService.register(request);
+        return Result.success("注册成功", response);
     }
 }
 

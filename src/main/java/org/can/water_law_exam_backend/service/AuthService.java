@@ -5,8 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.can.water_law_exam_backend.config.JwtProperties;
 import org.can.water_law_exam_backend.dto.request.auth.LoginRequest;
+import org.can.water_law_exam_backend.dto.request.auth.RegisterRequest;
 import org.can.water_law_exam_backend.dto.response.auth.CurrentUserResponse;
 import org.can.water_law_exam_backend.dto.response.auth.LoginResponse;
+import org.can.water_law_exam_backend.dto.response.auth.RegisterResponse;
 import org.can.water_law_exam_backend.entity.AccountUser;
 import org.can.water_law_exam_backend.entity.Admin;
 import org.can.water_law_exam_backend.exception.BusinessException;
@@ -18,8 +20,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 /**
@@ -37,6 +43,7 @@ public class AuthService {
     private final TokenService tokenService;
     private final AdminMapper adminMapper;
     private final AccountUserMapper accountUserMapper;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * 管理员登录
@@ -244,6 +251,99 @@ public class AuthService {
                 .token(token)
                 .tokenExpireAt(tokenExpireAt)
                 .build();
+    }
+
+    /**
+     * 用户注册
+     *
+     * @param request 注册请求
+     * @return 注册响应
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public RegisterResponse register(RegisterRequest request) {
+        try {
+            // 1. 验证验证码
+            boolean captchaValid = captchaService.verifyCaptcha(
+                    request.getCaptchaId(),
+                    request.getCaptchaCode()
+            );
+            if (!captchaValid) {
+                log.warn("注册失败：验证码错误 - 身份证号={}", request.getIdNo());
+                throw new BusinessException(400, "验证码错误或已过期");
+            }
+
+            // 2. 验证两次密码是否一致
+            if (!request.getPassword().equals(request.getConfirmPassword())) {
+                log.warn("注册失败：两次密码不一致 - 身份证号={}", request.getIdNo());
+                throw new BusinessException(400, "两次密码输入不一致");
+            }
+
+            // 3. 检查身份证号是否已注册
+            AccountUser existingUserByIdNo = accountUserMapper.selectByIdNo(request.getIdNo());
+            if (existingUserByIdNo != null) {
+                log.warn("注册失败：身份证号已注册 - 身份证号={}", request.getIdNo());
+                throw new BusinessException(400, "该身份证号已注册");
+            }
+
+            // 4. 检查手机号是否已注册
+            AccountUser existingUserByPhone = accountUserMapper.selectByPhone(request.getPhone());
+            if (existingUserByPhone != null) {
+                log.warn("注册失败：手机号已注册 - 手机号={}", request.getPhone());
+                throw new BusinessException(400, "该手机号已被使用");
+            }
+
+            // 5. 验证单位是否存在
+            String orgName = accountUserMapper.selectOrgNameById(request.getOrgId());
+            if (orgName == null) {
+                log.warn("注册失败：单位不存在 - 单位ID={}", request.getOrgId());
+                throw new BusinessException(400, "所选单位不存在");
+            }
+
+            // 6. 加密密码
+            String encryptedPassword = passwordEncoder.encode(request.getPassword());
+
+            // 7. 创建用户对象
+            AccountUser newUser = new AccountUser();
+            newUser.setName(request.getName());
+            newUser.setIdNo(request.getIdNo());
+            newUser.setPhone(request.getPhone());
+            newUser.setOrgId(request.getOrgId());
+            newUser.setPwd(encryptedPassword);
+            newUser.setLocked(false); // 默认启用
+            newUser.setCreateTime(LocalDateTime.now());
+            newUser.setUpdateTime(LocalDateTime.now());
+
+            // 8. 插入数据库
+            int result = accountUserMapper.insert(newUser);
+            if (result <= 0) {
+                log.error("注册失败：数据库插入失败 - 身份证号={}", request.getIdNo());
+                throw new BusinessException(500, "注册失败，请稍后重试");
+            }
+
+            log.info("用户注册成功：姓名={}, 身份证号={}, 手机号={}, 单位={}", 
+                    request.getName(), request.getIdNo(), request.getPhone(), orgName);
+
+            // 9. 构建响应
+            return RegisterResponse.builder()
+                    .userId(newUser.getId())
+                    .name(newUser.getName())
+                    .idNo(newUser.getIdNo())
+                    .phone(newUser.getPhone())
+                    .orgId(newUser.getOrgId())
+                    .orgName(orgName)
+                    .registerTime(newUser.getCreateTime()
+                            .atZone(ZoneId.systemDefault())
+                            .toInstant()
+                            .toEpochMilli())
+                    .message("注册成功！请使用身份证号和密码登录")
+                    .build();
+
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("注册异常：身份证号={}", request.getIdNo(), e);
+            throw new BusinessException(500, "注册失败，请稍后重试");
+        }
     }
 }
 
