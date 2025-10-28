@@ -1,5 +1,7 @@
 package org.can.water_law_exam_backend.service;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.can.water_law_exam_backend.dto.request.accountuser.AccountUserAddRequest;
@@ -208,9 +210,6 @@ public class AccountUserService {
      * @return 分页结果
      */
     public PageResult<AccountUserVO> getAccountUsersByPage(AccountUserPageRequest request) {
-        // 计算偏移量
-        int offset = (request.getPage() - 1) * request.getSize();
-
         // 获取查询参数
         Long orgId = null;
         String key = null;
@@ -224,8 +223,10 @@ public class AccountUserService {
             }
         }
 
-        // 查询数据列表
-        List<AccountUser> list = accountUserMapper.selectByPage(offset, request.getSize(), orgId, key);
+        // 使用PageHelper进行分页
+        PageHelper.startPage(request.getPage(), request.getSize());
+        List<AccountUser> list = accountUserMapper.selectByPage(orgId, key);
+        PageInfo<AccountUser> pageInfo = new PageInfo<>(list);
 
         // 转换为VO
         List<AccountUserVO> voList = list.stream().map(accountUser -> {
@@ -239,17 +240,8 @@ public class AccountUserService {
             return vo;
         }).collect(Collectors.toList());
 
-        // 统计总数（如果需要）
-        long total;
-        if (request.getTotal() != null && request.getTotal() >= 0) {
-            // 使用传入的总数，避免重复统计
-            total = request.getTotal().longValue();
-        } else {
-            // 重新统计总数
-            total = accountUserMapper.countAll(orgId, key);
-        }
-
-        return new PageResult<>(total, voList);
+        // 转换为PageResult（使用转换后的VO列表）
+        return PageResult.of(pageInfo, voList);
     }
 
     /**

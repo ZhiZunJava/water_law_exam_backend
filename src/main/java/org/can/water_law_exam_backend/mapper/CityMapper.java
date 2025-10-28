@@ -20,24 +20,12 @@ public interface CityMapper {
     List<City> selectAll();
 
     /**
-     * 分页查询城市列表
+     * 分页查询城市列表（使用PageHelper，不需要offset和limit参数）
      *
-     * @param offset 偏移量
-     * @param limit  每页数量
      * @param key    城市名称关键字（可选，用于模糊查询）
      * @return 城市列表
      */
-    List<City> selectByPage(@Param("offset") int offset, 
-                           @Param("limit") int limit, 
-                           @Param("key") String key);
-
-    /**
-     * 统计城市总数
-     *
-     * @param key 城市名称关键字（可选，用于模糊查询）
-     * @return 城市总数
-     */
-    long countAll(@Param("key") String key);
+    List<City> selectByPage(@Param("key") String key);
 
     /**
      * 根据ID查询城市信息

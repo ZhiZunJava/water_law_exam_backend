@@ -22,7 +22,7 @@
         ORDER BY id ASC
     </select>
 
-    <!-- 分页查询城市列表 -->
+    <!-- 分页查询城市列表（使用PageHelper，不需要LIMIT） -->
     <select id="selectByPage" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
@@ -33,18 +33,6 @@
             </if>
         </where>
         ORDER BY id ASC
-        LIMIT #{offset}, #{limit}
-    </select>
-
-    <!-- 统计城市总数 -->
-    <select id="countAll" resultType="long">
-        SELECT COUNT(*)
-        FROM tb_city
-        <where>
-            <if test="key != null and key != ''">
-                AND city_name LIKE CONCAT('%', #{key}, '%')
-            </if>
-        </where>
     </select>
 
     <!-- 根据ID查询城市信息 -->

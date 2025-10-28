@@ -1,5 +1,7 @@
 package org.can.water_law_exam_backend.service;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.can.water_law_exam_backend.dto.request.city.CityAddRequest;
@@ -40,9 +42,6 @@ public class CityService {
      * @return 分页结果
      */
     public PageResult<City> getCitiesByPage(CityPageRequest request) {
-        // 计算偏移量
-        int offset = (request.getPage() - 1) * request.getSize();
-        
         // 获取查询关键字
         String key = null;
         if (request.getParam() != null && request.getParam().getKey() != null) {
@@ -52,20 +51,13 @@ public class CityService {
             }
         }
 
-        // 查询数据列表
-        List<City> list = cityMapper.selectByPage(offset, request.getSize(), key);
+        // 使用PageHelper进行分页
+        PageHelper.startPage(request.getPage(), request.getSize());
+        List<City> list = cityMapper.selectByPage(key);
+        PageInfo<City> pageInfo = new PageInfo<>(list);
 
-        // 统计总数（如果需要）
-        long total;
-        if (request.getTotal() != null && request.getTotal() >= 0) {
-            // 使用传入的总数，避免重复统计
-            total = request.getTotal().longValue();
-        } else {
-            // 重新统计总数
-            total = cityMapper.countAll(key);
-        }
-
-        return new PageResult<>(total, list);
+        // 转换为PageResult
+        return PageResult.of(pageInfo);
     }
 
     /**
@@ -204,4 +196,3 @@ public class CityService {
         log.info("批量删除城市成功：删除数量={}", rows);
     }
 }
-

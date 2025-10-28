@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.can.water_law_exam_backend.mapper.OrganizationMapper">
+
+    <resultMap id="BaseResultMap" type="org.can.water_law_exam_backend.entity.Organization">
+        <id column="id" property="id"/>
+        <result column="org_name" property="orgName"/>
+        <result column="city_id" property="cityId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <resultMap id="OrganizationWithCityResultMap" type="org.can.water_law_exam_backend.entity.Organization">
+        <id column="id" property="id"/>
+        <result column="org_name" property="orgName"/>
+        <result column="city_id" property="cityId"/>
+        <result column="city_name" property="cityName"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, org_name, city_id, create_time, update_time
+    </sql>
+
+    <sql id="Organization_With_City_Column_List">
+        o.id, o.org_name, o.city_id, c.city_name, o.create_time, o.update_time
+    </sql>
+
+    <!-- 根据父级ID和启用状态获取下一级组织列表 -->
+    <select id="selectByParentIdAndEnabled" resultMap="OrganizationWithCityResultMap">
+        SELECT
+        <include refid="Organization_With_City_Column_List"/>
+        FROM tb_organization o
+        LEFT JOIN tb_city c ON o.city_id = c.id
+        <where>
+            <if test="pId != null">
+                AND o.city_id = #{pId}
+            </if>
+            <if test="enabled != null">
+                <!-- AND o.enabled = #{enabled} -->
+            </if>
+        </where>
+        ORDER BY o.id ASC
+    </select>
+
+    <!-- 根据城市ID获取单位列表 -->
+    <select id="selectByCityId" resultMap="OrganizationWithCityResultMap">
+        SELECT
+        <include refid="Organization_With_City_Column_List"/>
+        FROM tb_organization o
+        LEFT JOIN tb_city c ON o.city_id = c.id
+        WHERE o.city_id = #{cityId}
+        ORDER BY o.id ASC
+    </select>
+
+    <!-- 根据城市ID和启用状态获取单位列表 -->
+    <select id="selectByCityIdAndEnabled" resultMap="OrganizationWithCityResultMap">
+        SELECT
+        <include refid="Organization_With_City_Column_List"/>
+        FROM tb_organization o
+        LEFT JOIN tb_city c ON o.city_id = c.id
+        <where>
+            o.city_id = #{cityId}
+            <if test="enabled != null">
+                <!-- AND o.enabled = #{enabled} -->
+            </if>
+        </where>
+        ORDER BY o.id ASC
+    </select>
+
+    <!-- 分页查询单位列表（使用PageHelper，不需要LIMIT） -->
+    <select id="selectByPage" resultMap="OrganizationWithCityResultMap">
+        SELECT
+        <include refid="Organization_With_City_Column_List"/>
+        FROM tb_organization o
+        LEFT JOIN tb_city c ON o.city_id = c.id
+        <where>
+            <if test="cId != null">
+                AND o.city_id = #{cId}
+            </if>
+            <if test="key != null and key != ''">
+                AND o.org_name LIKE CONCAT('%', #{key}, '%')
+            </if>
+        </where>
+        ORDER BY o.id ASC
+    </select>
+
+    <!-- 根据ID查询单位信息 -->
+    <select id="selectById" resultMap="OrganizationWithCityResultMap">
+        SELECT
+        <include refid="Organization_With_City_Column_List"/>
+        FROM tb_organization o
+        LEFT JOIN tb_city c ON o.city_id = c.id
+        WHERE o.id = #{id}
+    </select>
+
+    <!-- 根据单位名称和城市ID查询单位 -->
+    <select id="selectByNameAndCityId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM tb_organization
+        WHERE org_name = #{orgName}
+        AND city_id = #{cityId}
+    </select>
+
+    <!-- 插入单位 -->
+    <insert id="insert" parameterType="org.can.water_law_exam_backend.entity.Organization"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_organization (org_name, city_id)
+        VALUES (#{orgName}, #{cityId})
+    </insert>
+
+    <!-- 更新单位信息 -->
+    <update id="update">
+        UPDATE tb_organization
+        SET org_name = #{orgName},
+            city_id = #{cityId},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 根据ID删除单位 -->
+    <delete id="deleteById">
+        DELETE FROM tb_organization
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 批量删除单位 -->
+    <delete id="deleteBatch">
+        DELETE FROM tb_organization
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 统计单位下的学员数量 -->
+    <select id="countUsersByOrgId" resultType="int">
+        SELECT COUNT(*)
+        FROM tb_account_user
+        WHERE org_id = #{orgId}
+    </select>
+
+</mapper>
+

@@ -88,27 +88,13 @@ public interface AccountUserMapper {
     int toggleLock(@Param("id") Long id);
 
     /**
-     * 分页查询学员列表
+     * 分页查询学员列表（使用PageHelper，不需要offset和limit参数）
      *
-     * @param offset 偏移量
-     * @param limit 每页数量
      * @param orgId 单位ID（可选）
      * @param key 检索关键字（可选）
      * @return 学员列表
      */
-    List<AccountUser> selectByPage(@Param("offset") int offset, 
-                                    @Param("limit") int limit,
-                                    @Param("orgId") Long orgId,
-                                    @Param("key") String key);
-
-    /**
-     * 统计学员总数
-     *
-     * @param orgId 单位ID（可选）
-     * @param key 检索关键字（可选）
-     * @return 学员总数
-     */
-    long countAll(@Param("orgId") Long orgId, @Param("key") String key);
+    List<AccountUser> selectByPage(@Param("orgId") Long orgId, @Param("key") String key);
 
     /**
      * 根据手机号查询学员

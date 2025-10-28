@@ -102,6 +102,7 @@
         WHERE id = #{id}
     </update>
 
+    <!-- 分页查询学员列表（使用PageHelper，不需要LIMIT） -->
     <select id="selectByPage" resultMap="AccountUserWithOrgResultMap">
         SELECT
             u.id,
@@ -125,20 +126,6 @@
             </if>
         </where>
         ORDER BY u.create_time DESC
-        LIMIT #{offset}, #{limit}
-    </select>
-
-    <select id="countAll" resultType="long">
-        SELECT COUNT(*)
-        FROM tb_account_user
-        <where>
-            <if test="orgId != null">
-                AND org_id = #{orgId}
-            </if>
-            <if test="key != null and key != ''">
-                AND (name LIKE CONCAT('%', #{key}, '%') OR id_no LIKE CONCAT('%', #{key}, '%'))
-            </if>
-        </where>
     </select>
 
     <select id="selectByPhone" resultMap="BaseResultMap">
