@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.can.water_law_exam_backend.mapper.ItemTypeMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="ItemTypeResultMap" type="org.can.water_law_exam_backend.entity.ItemType">
+        <id property="id" column="id"/>
+        <result property="typeName" column="type_name"/>
+        <result property="typeRemarks" column="type_remarks"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <!-- 查询所有题型 -->
+    <select id="selectAll" resultMap="ItemTypeResultMap">
+        SELECT id, type_name, type_remarks, create_time
+        FROM tb_item_type
+        ORDER BY id ASC
+    </select>
+
+    <!-- 根据ID查询题型 -->
+    <!-- <select id="selectById" resultMap="ItemTypeResultMap">
+        SELECT id, type_name, type_remarks, create_time
+        FROM tb_item_type
+        WHERE id = #{id}
+    </select> -->
+
+    <!-- 新增题型 -->
+    <!-- <insert id="insert" parameterType="org.can.water_law_exam_backend.entity.ItemType"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_item_type (type_name, type_remarks)
+        VALUES (#{typeName}, #{typeRemarks})
+    </insert> -->
+
+    <!-- 更新题型 -->
+    <!-- <update id="update" parameterType="org.can.water_law_exam_backend.entity.ItemType">
+        UPDATE tb_item_type
+        SET type_name = #{typeName},
+            type_remarks = #{typeRemarks}
+        WHERE id = #{id}
+    </update> -->
+
+    <!-- 删除题型 -->
+    <!-- <delete id="deleteById">
+        DELETE FROM tb_item_type
+        WHERE id = #{id}
+    </delete> -->
+
+</mapper>
+
