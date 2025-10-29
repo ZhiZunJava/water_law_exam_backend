@@ -86,7 +86,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/auth/**",
                                 "/captcha/**",
-                                "/actuator/**",
+                                "/org/list", // 组织结构
                                 "/error"
                         ).permitAll()
                         // 其他所有请求都需要认证

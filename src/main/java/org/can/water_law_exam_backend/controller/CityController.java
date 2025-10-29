@@ -41,10 +41,6 @@ public class CityController {
     /**
      * 分页查询城市列表
      *
-     * @param page  页码
-     * @param size  页大小
-     * @param total 总数据条数（可选）
-     * @param key   城市名称关键字（可选）
      * @return 分页结果
      */
     @GetMapping("/pages")
