@@ -5,7 +5,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
- * JWT配置属性类
+ * JWT 配置属性类
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Data
 @Component
@@ -13,22 +16,22 @@ import org.springframework.stereotype.Component;
 public class JwtProperties {
 
     /**
-     * JWT签名密钥
+     * JWT 签名密钥
      */
     private String secret;
 
     /**
-     * Token过期时间（毫秒）
+     * Token 过期时间（毫秒）
      */
     private Long expiration;
 
     /**
-     * HTTP请求头名称
+     * HTTP 请求头名称
      */
     private String header;
 
     /**
-     * Token前缀
+     * Token 前缀
      */
     private String tokenPrefix;
 }

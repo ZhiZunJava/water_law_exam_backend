@@ -6,6 +6,9 @@ import org.can.water_law_exam_backend.entity.UserRole;
 
 /**
  * 用户角色关联Mapper接口
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Mapper
 public interface UserRoleMapper {

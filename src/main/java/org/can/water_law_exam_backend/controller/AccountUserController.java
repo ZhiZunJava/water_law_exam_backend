@@ -20,6 +20,9 @@ import java.util.List;
 
 /**
  * 学员管理控制器
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Slf4j
 @RestController
@@ -36,8 +39,8 @@ public class AccountUserController {
      * 请求路径：/au/add
      * 请求方式：POST
      *
-     * @param request 添加请求
-     * @return 新添加学员的ID
+     * @param request 请求
+     * @return {@link Result }<{@link Long }>
      */
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/add")
@@ -52,8 +55,8 @@ public class AccountUserController {
      * 请求路径：/au/update
      * 请求方式：POST
      *
-     * @param request 修改请求
-     * @return 成功响应
+     * @param request 请求
+     * @return {@link Result }<{@link String }>
      */
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/update")
@@ -68,8 +71,8 @@ public class AccountUserController {
      * 请求路径：/au/delete
      * 请求方式：POST
      *
-     * @param ids 学员ID列表
-     * @return 成功响应
+     * @param ids 标识符
+     * @return {@link Result }<{@link String }>
      */
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/delete")
@@ -84,7 +87,7 @@ public class AccountUserController {
      * 请求路径：/au/lock/{id}
      * 请求方式：POST
      *
-     * @param id 学员ID
+     * @param id 学员 ID
      * @return 设置成功后的用户状态：true-禁用，false-正常
      */
     @PreAuthorize("hasRole('ADMIN')")
@@ -120,7 +123,7 @@ public class AccountUserController {
      * 请求路径：/au/{id}
      * 请求方式：GET
      *
-     * @param id 学员ID
+     * @param id 学员 ID
      * @return 学员信息
      */
     @PreAuthorize("hasRole('ADMIN')")
@@ -168,7 +171,7 @@ public class AccountUserController {
      * 请求路径：/au/forceLogout/{id}
      * 请求方式：POST
      *
-     * @param id 用户ID
+     * @param id 用户 ID
      * @return 成功响应
      */
     @PreAuthorize("hasRole('ADMIN')")

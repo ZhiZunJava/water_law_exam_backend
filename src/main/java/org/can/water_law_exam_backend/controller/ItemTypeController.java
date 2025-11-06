@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 题型管理控制器
+ * 题目类型控制器
  *
- * @author can
- * @date 2025/10/28
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @RestController
 @RequestMapping("/it")

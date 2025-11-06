@@ -6,6 +6,9 @@ import lombok.NoArgsConstructor;
 
 /**
  * 验证码视图对象
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Data
 @NoArgsConstructor

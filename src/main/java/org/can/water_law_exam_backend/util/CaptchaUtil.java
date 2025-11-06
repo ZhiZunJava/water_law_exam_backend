@@ -12,6 +12,9 @@ import java.util.Random;
 
 /**
  * 验证码生成工具类
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 public class CaptchaUtil {
 

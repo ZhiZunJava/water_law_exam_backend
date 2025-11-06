@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 验证码控制器
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Slf4j
 @RestController

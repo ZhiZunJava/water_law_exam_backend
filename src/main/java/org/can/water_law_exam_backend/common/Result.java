@@ -3,11 +3,13 @@ package org.can.water_law_exam_backend.common;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.can.water_law_exam_backend.common.constant.ResultCodeEnum;
 
 /**
  * 统一返回结果封装类
  *
- * @param <T> 返回数据类型
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Data
 @NoArgsConstructor
@@ -33,28 +35,28 @@ public class Result<T> {
      * 成功返回（无数据）
      */
     public static <T> Result<T> success() {
-        return new Result<>(0, "操作成功", null);
+        return new Result<>(ResultCodeEnum.SUCCESS.getCode(), ResultCodeEnum.SUCCESS.getMessage(), null);
     }
 
     /**
      * 成功返回（带数据）
      */
     public static <T> Result<T> success(T data) {
-        return new Result<>(0, "操作成功", data);
+        return new Result<>(ResultCodeEnum.SUCCESS.getCode(), ResultCodeEnum.SUCCESS.getMessage(), data);
     }
 
     /**
      * 成功返回（带消息和数据）
      */
     public static <T> Result<T> success(String msg, T data) {
-        return new Result<>(0, msg, data);
+        return new Result<>(ResultCodeEnum.SUCCESS.getCode(), msg, data);
     }
 
     /**
      * 失败返回
      */
     public static <T> Result<T> error(String msg) {
-        return new Result<>(1, msg, null);
+        return new Result<>(ResultCodeEnum.FAIL.getCode(), msg, null);
     }
 
     /**

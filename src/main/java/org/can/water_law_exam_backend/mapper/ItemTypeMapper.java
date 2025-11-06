@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * 题型Mapper接口
  *
- * @author can
+ * @author 程安宁
  * @date 2025/10/28
  */
 @Mapper

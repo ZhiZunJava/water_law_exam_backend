@@ -5,6 +5,9 @@ import lombok.Data;
 
 /**
  * 登录请求DTO
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Data
 public class LoginRequest {

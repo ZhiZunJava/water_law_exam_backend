@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.*;
 /**
  * 认证控制器
  * 处理登录、登出等认证相关请求
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Slf4j
 @RestController
@@ -63,7 +66,7 @@ public class AuthController {
      */
     @GetMapping("/current")
     public Result<CurrentUserResponse> getCurrentUser(HttpServletRequest request) {
-        // 获取请求头中的Token
+        // 获取请求头中的 Token
         String authHeader = request.getHeader(jwtProperties.getHeader());
         
         if (authHeader == null || !authHeader.startsWith(jwtProperties.getTokenPrefix())) {
@@ -86,13 +89,13 @@ public class AuthController {
      * 登出（从Redis删除Token）
      * 无论token是否存在或过期，都返回成功，确保用户体验
      *
-     * @param request HTTP请求
+     * @param request HTTP 请求
      * @return 成功响应
      */
     @PostMapping("/logout")
     public Result<String> logout(HttpServletRequest request) {
         try {
-            // 获取请求头中的Token
+            // 获取请求头中的 Token
             String authHeader = request.getHeader(jwtProperties.getHeader());
             
             if (authHeader == null || authHeader.trim().isEmpty()) {

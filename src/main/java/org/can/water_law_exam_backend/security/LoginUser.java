@@ -9,6 +9,9 @@ import java.util.Collections;
 
 /**
  * Spring Security用户详情类
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Data
 public class LoginUser implements UserDetails {

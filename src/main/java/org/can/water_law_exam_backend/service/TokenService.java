@@ -10,6 +10,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * Token管理服务
  * 使用Redis存储token，实现token的撤销、强制下线等功能
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Slf4j
 @Service

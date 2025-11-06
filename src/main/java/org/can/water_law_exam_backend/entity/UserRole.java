@@ -6,6 +6,9 @@ import java.time.LocalDateTime;
 
 /**
  * 用户角色关联实体类
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Data
 public class UserRole {

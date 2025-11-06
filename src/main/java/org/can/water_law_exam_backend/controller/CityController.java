@@ -16,7 +16,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 城市管理控制器
+ * 城市管制控制器
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Slf4j
 @RestController
@@ -62,9 +65,9 @@ public class CityController {
     }
 
     /**
-     * 根据ID获取城市信息
+     * 根据 ID 获取城市信息
      *
-     * @param id 城市ID
+     * @param id 城市 ID
      * @return 城市信息
      */
     @GetMapping("/{id}")
@@ -105,7 +108,7 @@ public class CityController {
     /**
      * 删除城市
      *
-     * @param id 城市ID
+     * @param id 城市 ID
      * @return 结果
      */
     @PreAuthorize("hasRole('ADMIN')")
@@ -119,7 +122,7 @@ public class CityController {
     /**
      * 批量删除城市
      *
-     * @param ids 城市ID列表
+     * @param ids 城市 ID 列表
      * @return 结果
      */
     @PreAuthorize("hasRole('ADMIN')")

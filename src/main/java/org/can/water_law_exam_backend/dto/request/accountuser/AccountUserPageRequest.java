@@ -6,6 +6,9 @@ import org.can.water_law_exam_backend.common.base.PageRequest;
 
 /**
  * 学员分页查询请求DTO
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

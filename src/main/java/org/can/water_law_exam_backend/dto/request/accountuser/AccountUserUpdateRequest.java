@@ -7,6 +7,9 @@ import lombok.Data;
 
 /**
  * 修改学员请求DTO
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Data
 public class AccountUserUpdateRequest {

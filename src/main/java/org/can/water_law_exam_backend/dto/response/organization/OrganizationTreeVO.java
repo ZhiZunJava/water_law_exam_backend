@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 /**
  * 组织树形结构响应VO
  * 用于统一返回城市和单位数据
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Data
 @NoArgsConstructor

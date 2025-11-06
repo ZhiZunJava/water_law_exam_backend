@@ -8,6 +8,9 @@ import java.util.List;
 
 /**
  * 学员信息VO
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Data
 public class AccountUserVO {

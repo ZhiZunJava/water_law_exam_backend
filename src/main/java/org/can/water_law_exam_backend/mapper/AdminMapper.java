@@ -6,6 +6,9 @@ import org.can.water_law_exam_backend.entity.Admin;
 
 /**
  * 管理员Mapper接口
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Mapper
 public interface AdminMapper {

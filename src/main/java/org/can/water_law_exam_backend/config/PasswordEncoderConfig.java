@@ -8,12 +8,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 /**
  * 密码编码器配置类
  * 独立配置以避免循环依赖
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Configuration
 public class PasswordEncoderConfig {
 
     /**
      * 密码编码器
+     *
+     * @return {@link PasswordEncoder }
      */
     @Bean
     public PasswordEncoder passwordEncoder() {

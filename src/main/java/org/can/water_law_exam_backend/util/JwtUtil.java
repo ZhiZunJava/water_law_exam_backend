@@ -15,6 +15,9 @@ import java.util.Map;
 
 /**
  * JWT工具类
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Slf4j
 @Component

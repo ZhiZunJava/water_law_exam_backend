@@ -7,6 +7,9 @@ import java.time.LocalDateTime;
 
 /**
  * 当前登录用户详细信息响应
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Data
 @Builder

@@ -6,6 +6,9 @@ import lombok.NoArgsConstructor;
 
 /**
  * 登录响应DTO
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Data
 @NoArgsConstructor

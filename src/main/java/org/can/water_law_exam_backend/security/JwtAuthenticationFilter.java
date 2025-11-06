@@ -27,6 +27,9 @@ import java.util.List;
 /**
  * JWT认证过滤器
  * 拦截所有请求，验证JWT Token的有效性
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Slf4j
 @Component
@@ -38,13 +41,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final ObjectMapper objectMapper;
     private final TokenService tokenService;
 
+    /**
+     * 做内部过滤
+     *
+     * @param request     请求
+     * @param response    响应
+     * @param filterChain 过滤器链
+     * @throws ServletException servlet异常
+     * @throws IOException      异常
+     */
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        // 获取请求头中的Authorization
+        // 获取请求头中的 Authorization
         String authHeader = request.getHeader(jwtProperties.getHeader());
 
         // 如果没有Authorization头或者格式不对，直接放行（让Security的其他过滤器处理）
@@ -69,7 +81,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            // 从Token中提取用户信息
+            // 从 Token中提取用户信息
             Long userId = jwtUtil.getUserIdFromToken(token);
             String username = jwtUtil.getUsernameFromToken(token);
             String userType = jwtUtil.getUserTypeFromToken(token);
@@ -108,6 +120,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     /**
      * 处理认证失败
+     *
+     * @param response 响应
+     * @param message  消息
+     * @throws IOException 异常
      */
     private void handleAuthenticationFailure(HttpServletResponse response, String message) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

@@ -17,6 +17,9 @@ import org.springframework.stereotype.Component;
  * 支持多种登录方式：
  * 1. 管理员账号密码登录（admin:账号）
  * 2. 学员身份证号密码登录（user:身份证号）
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Slf4j
 @Component

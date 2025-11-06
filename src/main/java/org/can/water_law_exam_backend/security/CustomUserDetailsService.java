@@ -18,11 +18,13 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 自定义用户详情服务
  * 实现账号密码登录认证
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Slf4j
 @Service
@@ -82,7 +84,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         // 检测并处理明文密码
         String password = admin.getPwd();
-        if (!isPasswordEncrypted(password)) {
+        if (isPasswordEncrypted(password)) {
             log.info("管理员 {} 密码自动加密", userNo);
             String encryptedPassword = passwordEncoder.encode(password);
             adminMapper.updatePassword(admin.getId(), encryptedPassword);
@@ -118,7 +120,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         // 检测并处理明文密码
         String password = user.getPwd();
-        if (!isPasswordEncrypted(password)) {
+        if (isPasswordEncrypted(password)) {
             log.info("学员 {} 密码自动加密", idNo);
             String encryptedPassword = passwordEncoder.encode(password);
             accountUserMapper.updatePassword(user.getId(), encryptedPassword);
@@ -134,7 +136,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (roles != null && !roles.isEmpty()) {
             List<SimpleGrantedAuthority> roleAuthorities = roles.stream()
                     .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRoleName().toUpperCase()))
-                    .collect(Collectors.toList());
+                    .toList();
             authorities.addAll(roleAuthorities);
         }
 
@@ -150,7 +152,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     /**
      * 判断密码是否已加密
-     * BCrypt 加密后的密码格式：$2a$10$... 或 $2b$10$... 或 $2y$10$...
+     * Bcrypt 加密后的密码格式：$2a$10$... 或 $2b$10$... 或 $2y$10$...
      * 长度通常为 60 字符
      *
      * @param password 密码
@@ -158,12 +160,12 @@ public class CustomUserDetailsService implements UserDetailsService {
      */
     private boolean isPasswordEncrypted(String password) {
         if (password == null || password.isEmpty()) {
-            return false;
+            return true;
         }
-        // BCrypt 加密后的密码特征：
+        // Bcrypt 加密后的密码特征：
         // 1. 以 $2a$、$2b$ 或 $2y$ 开头
         // 2. 长度通常为 60 字符
-        return password.matches("^\\$2[aby]\\$\\d{2}\\$.{53}$");
+        return !password.matches("^\\$2[aby]\\$\\d{2}\\$.{53}$");
     }
 }
 

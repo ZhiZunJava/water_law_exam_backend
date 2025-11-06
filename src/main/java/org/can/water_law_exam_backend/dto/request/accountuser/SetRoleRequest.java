@@ -5,6 +5,9 @@ import lombok.Data;
 
 /**
  * 设置用户角色请求DTO
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Data
 public class SetRoleRequest {

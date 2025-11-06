@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * 题型服务类
  *
- * @author can
+ * @author 程安宁
  * @date 2025/10/28
  */
 @Service

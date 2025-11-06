@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 /**
  * 题型实体类
  *
- * @author can
+ * @author 程安宁
  * @date 2025/10/28
  */
 @Data

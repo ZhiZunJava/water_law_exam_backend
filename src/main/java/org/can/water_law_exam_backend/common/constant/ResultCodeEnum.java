@@ -4,6 +4,9 @@ import lombok.Getter;
 
 /**
  * 响应状态码枚举
+ *
+ * @author 程安宁
+ * @date 2025/11/06
  */
 @Getter
 public enum ResultCodeEnum {
@@ -11,12 +14,12 @@ public enum ResultCodeEnum {
     /**
      * 成功
      */
-    SUCCESS(200, "操作成功"),
+    SUCCESS(0, "操作成功"),
 
     /**
      * 失败
      */
-    FAIL(500, "操作失败"),
+    FAIL(1, "操作失败"),
 
     /**
      * 参数错误
