@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.can.water_law_exam_backend.mapper.ItemBankMapper">
+
+    <resultMap id="BaseResultMap" type="org.can.water_law_exam_backend.entity.ItemBank">
+        <id column="id" property="id"/>
+        <result column="type_id" property="typeId"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="content" property="content"/>
+        <result column="explanation" property="explanation"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <resultMap id="ItemBankWithNamesResultMap" type="org.can.water_law_exam_backend.entity.ItemBank">
+        <id column="id" property="id"/>
+        <result column="type_id" property="typeId"/>
+        <result column="type_name" property="typeName"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="category_name" property="categoryName"/>
+        <result column="content" property="content"/>
+        <result column="explanation" property="explanation"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 插入题目 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_item_bank (type_id, category_id, content, explanation)
+        VALUES (#{typeId}, #{categoryId}, #{content}, #{explanation})
+    </insert>
+
+    <!-- 更新题目 -->
+    <update id="update">
+        UPDATE tb_item_bank
+        SET type_id = #{typeId},
+            category_id = #{categoryId},
+            content = #{content},
+            explanation = #{explanation},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 根据ID删除题目 -->
+    <delete id="deleteById">
+        DELETE FROM tb_item_bank
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 批量删除题目 -->
+    <delete id="deleteBatch">
+        DELETE FROM tb_item_bank
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 根据ID查询题目（包含题型和分类名称） -->
+    <select id="selectById" resultMap="ItemBankWithNamesResultMap">
+        SELECT 
+            ib.id,
+            ib.type_id,
+            it.type_name,
+            ib.category_id,
+            ic.title as category_name,
+            ib.content,
+            ib.explanation,
+            ib.create_time,
+            ib.update_time
+        FROM tb_item_bank ib
+        LEFT JOIN tb_item_type it ON ib.type_id = it.id
+        LEFT JOIN tb_item_category ic ON ib.category_id = ic.id
+        WHERE ib.id = #{id}
+    </select>
+
+    <!-- 分页查询题目列表（使用PageHelper） -->
+    <select id="selectByPage" resultMap="ItemBankWithNamesResultMap">
+        SELECT 
+            ib.id,
+            ib.type_id,
+            it.type_name,
+            ib.category_id,
+            ic.title as category_name,
+            ib.content,
+            ib.explanation,
+            ib.create_time,
+            ib.update_time
+        FROM tb_item_bank ib
+        LEFT JOIN tb_item_type it ON ib.type_id = it.id
+        LEFT JOIN tb_item_category ic ON ib.category_id = ic.id
+        <where>
+            <if test="categoryId != null">
+                AND ib.category_id = #{categoryId}
+            </if>
+            <if test="typeId != null">
+                AND ib.type_id = #{typeId}
+            </if>
+            <if test="key != null and key != ''">
+                AND ib.content LIKE CONCAT('%', #{key}, '%')
+            </if>
+        </where>
+        ORDER BY ib.create_time DESC
+    </select>
+
+</mapper>
+

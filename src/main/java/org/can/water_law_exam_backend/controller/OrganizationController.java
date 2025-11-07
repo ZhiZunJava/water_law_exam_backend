@@ -69,18 +69,8 @@ public class OrganizationController {
      */
     @PostMapping("/pages")
     public Result<PageResult<Organization>> getOrganizationsByPage(@RequestBody OrganizationPageRequest request) {
-
-        // 参数校验
-        if (request.getPage() == null || request.getPage() < 1) {
-            return Result.error(400, "页码必须大于0");
-        }
-        if (request.getSize() == null || request.getSize() < 1 || request.getSize() > 200) {
-            return Result.error(400, "页大小必须在1-200之间");
-        }
-
         log.info("分页查询单位列表：page={}, size={}, total={}, param={}", 
                 request.getPage(), request.getSize(), request.getTotal(), request.getParam());
-
         PageResult<Organization> result = organizationService.getOrganizationsByPage(request);
         return Result.success(result);
     }

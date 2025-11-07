@@ -122,6 +122,13 @@
             <artifactId>pagehelper-spring-boot-starter</artifactId>
             <version>2.1.0</version>
         </dependency>
+        
+        <!-- FastExcel - 高性能Excel读写库 (EasyExcel的增强版) -->
+        <dependency>
+            <groupId>cn.idev.excel</groupId>
+            <artifactId>fastexcel</artifactId>
+            <version>1.2.0</version>
+        </dependency>
     </dependencies>
 
     <build>

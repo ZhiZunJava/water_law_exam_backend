@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.can.water_law_exam_backend.mapper.ItemOptionMapper">
+
+    <resultMap id="BaseResultMap" type="org.can.water_law_exam_backend.entity.ItemOption">
+        <id column="id" property="id"/>
+        <result column="item_id" property="itemId"/>
+        <result column="option_no" property="optionNo"/>
+        <result column="option_title" property="optionTitle"/>
+        <result column="is_correct" property="isCorrect"/>
+    </resultMap>
+
+    <!-- 插入选项 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_item_option (item_id, option_no, option_title, is_correct)
+        VALUES (#{itemId}, #{optionNo}, #{optionTitle}, #{isCorrect})
+    </insert>
+
+    <!-- 批量插入选项 -->
+    <insert id="insertBatch">
+        INSERT INTO tb_item_option (item_id, option_no, option_title, is_correct)
+        VALUES
+        <foreach collection="options" item="option" separator=",">
+            (#{option.itemId}, #{option.optionNo}, #{option.optionTitle}, #{option.isCorrect})
+        </foreach>
+    </insert>
+
+    <!-- 根据题目ID删除所有选项 -->
+    <delete id="deleteByItemId">
+        DELETE FROM tb_item_option
+        WHERE item_id = #{itemId}
+    </delete>
+
+    <!-- 根据题目ID查询所有选项 -->
+    <select id="selectByItemId" resultMap="BaseResultMap">
+        SELECT id, item_id, option_no, option_title, is_correct
+        FROM tb_item_option
+        WHERE item_id = #{itemId}
+        ORDER BY option_no ASC
+    </select>
+
+</mapper>
+

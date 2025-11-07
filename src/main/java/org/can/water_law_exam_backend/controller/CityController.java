@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.can.water_law_exam_backend.common.Result;
+import org.can.water_law_exam_backend.common.constant.ResultCodeEnum;
 import org.can.water_law_exam_backend.dto.request.city.CityAddRequest;
 import org.can.water_law_exam_backend.dto.request.city.CityPageRequest;
 import org.can.water_law_exam_backend.dto.request.city.CityUpdateRequest;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 城市管制控制器
+ * 城市控制器
  *
  * @author 程安宁
  * @date 2025/11/06
@@ -48,18 +49,7 @@ public class CityController {
      */
     @GetMapping("/pages")
     public Result<PageResult<City>> getCitiesByPage( @Valid @RequestBody CityPageRequest request) {
-        
-        // 参数校验
-        if (request.getPage() == null || request.getPage() < 1) {
-            return Result.error(400, "页码必须大于0");
-        }
-        Integer size = request.getSize();
-        if (size == null || size < 1 || size > 200) {
-            return Result.error(400, "页大小必须在1-200之间");
-        }
-
-        log.info("分页查询城市列表：page={}, size={}, total={}, key={}", request.getPage(), size, request.getTotal(), request.getParam().getKey());
-
+        log.info("分页查询城市列表：page={}, size={}, total={}, key={}", request.getPage(), request.getSize(), request.getTotal(), request.getParam().getKey());
         PageResult<City> result = cityService.getCitiesByPage(request);
         return Result.success(result);
     }

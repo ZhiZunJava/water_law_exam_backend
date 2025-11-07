@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.can.water_law_exam_backend.common.Result;
+import org.can.water_law_exam_backend.common.constant.ResultCodeEnum;
 import org.can.water_law_exam_backend.dto.request.accountuser.AccountUserAddRequest;
 import org.can.water_law_exam_backend.dto.request.accountuser.AccountUserPageRequest;
 import org.can.water_law_exam_backend.dto.request.accountuser.AccountUserUpdateRequest;
