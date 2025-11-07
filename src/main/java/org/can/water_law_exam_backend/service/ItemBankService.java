@@ -5,6 +5,7 @@ import com.github.pagehelper.PageInfo;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.can.water_law_exam_backend.dto.excel.ItemBankExcelData;
 import org.can.water_law_exam_backend.dto.request.itembank.ItemBankAddRequest;
 import org.can.water_law_exam_backend.dto.request.itembank.ItemBankPageRequest;
 import org.can.water_law_exam_backend.dto.request.itembank.ItemBankUpdateRequest;
@@ -60,7 +61,7 @@ public class ItemBankService {
             ItemBankImportListener listener = new ItemBankImportListener();
             
             // 使用 FastExcel读取Excel，指定读取Sheet1
-            FastExcel.read(is, org.can.water_law_exam_backend.dto.excel.ItemBankExcelData.class, listener)
+            FastExcel.read(is, ItemBankExcelData.class, listener)
                     .sheet("Sheet1")
                     .doRead();
             
@@ -88,13 +89,13 @@ public class ItemBankService {
      * Excel 导入监听器
      */
     @Getter
-    private class ItemBankImportListener implements ReadListener<org.can.water_law_exam_backend.dto.excel.ItemBankExcelData> {
+    private class ItemBankImportListener implements ReadListener<ItemBankExcelData> {
         
         private int successCount = 0;
         private int failCount = 0;
         
         @Override
-        public void invoke(org.can.water_law_exam_backend.dto.excel.ItemBankExcelData data, AnalysisContext context) {
+        public void invoke(ItemBankExcelData data, AnalysisContext context) {
             try {
                 // 验证必填字段
                 if (isEmpty(data.getTypeName()) || isEmpty(data.getContent()) || 
