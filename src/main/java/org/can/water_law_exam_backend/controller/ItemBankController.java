@@ -8,6 +8,7 @@ import org.can.water_law_exam_backend.dto.request.itembank.ItemBankAddRequest;
 import org.can.water_law_exam_backend.dto.request.itembank.ItemBankPageRequest;
 import org.can.water_law_exam_backend.dto.request.itembank.ItemBankUpdateRequest;
 import org.can.water_law_exam_backend.dto.response.common.PageResult;
+import org.can.water_law_exam_backend.dto.response.itembank.ItemBankVO;
 import org.can.water_law_exam_backend.entity.ItemBank;
 import org.can.water_law_exam_backend.service.ItemBankService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -104,9 +105,9 @@ public class ItemBankController {
      */
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
-    public Result<ItemBank> getItemBankById(@PathVariable Long id) {
+    public Result<ItemBankVO> getItemBankById(@PathVariable Long id) {
         log.info("获取单条题目：id={}", id);
-        ItemBank itemBank = itemBankService.getItemBankById(id);
+        ItemBankVO itemBank = itemBankService.getItemBankById(id);
         return Result.success(itemBank);
     }
 

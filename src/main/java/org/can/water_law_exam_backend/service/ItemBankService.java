@@ -10,6 +10,8 @@ import org.can.water_law_exam_backend.dto.request.itembank.ItemBankAddRequest;
 import org.can.water_law_exam_backend.dto.request.itembank.ItemBankPageRequest;
 import org.can.water_law_exam_backend.dto.request.itembank.ItemBankUpdateRequest;
 import org.can.water_law_exam_backend.dto.response.common.PageResult;
+import org.can.water_law_exam_backend.dto.response.itembank.ItemBankVO;
+import org.can.water_law_exam_backend.dto.response.itembank.ItemOptionVO;
 import org.can.water_law_exam_backend.entity.ItemBank;
 import org.can.water_law_exam_backend.entity.ItemOption;
 import org.can.water_law_exam_backend.exception.BusinessException;
@@ -18,6 +20,7 @@ import org.can.water_law_exam_backend.mapper.ItemOptionMapper;
 import cn.idev.excel.FastExcel;
 import cn.idev.excel.context.AnalysisContext;
 import cn.idev.excel.read.listener.ReadListener;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -371,6 +374,18 @@ public class ItemBankService {
     }
 
     /**
+     * 验证选项标题是否为空
+     * 
+     * @param title 选项标题
+     * @throws BusinessException 如果标题为空
+     */
+    private void validateOptionTitle(String title) {
+        if (title == null || title.trim().isEmpty()) {
+            throw new BusinessException(1, "单选题/多选题的选项内容不能为空");
+        }
+    }
+
+    /**
      * 处理选项数据
      * 如果是判断题（typeId=3），自动添加"正确"和"错误"选项
      * 
@@ -414,9 +429,7 @@ public class ItemBankService {
             int optionNo = 1;
             for (ItemBankAddRequest.OptionDTO dto : optionDTOs) {
                 // 验证选项标题
-                if (dto.getTitle() == null || dto.getTitle().trim().isEmpty()) {
-                    throw new BusinessException(1, "单选题/多选题的选项内容不能为空");
-                }
+                validateOptionTitle(dto.getTitle());
 
                 ItemOption option = new ItemOption();
                 option.setItemId(itemId);
@@ -474,9 +487,7 @@ public class ItemBankService {
             int optionNo = 1;
             for (ItemBankUpdateRequest.OptionDTO dto : optionDTOs) {
                 // 验证选项标题
-                if (dto.getTitle() == null || dto.getTitle().trim().isEmpty()) {
-                    throw new BusinessException(1, "单选题/多选题的选项内容不能为空");
-                }
+                validateOptionTitle(dto.getTitle());
 
                 ItemOption option = new ItemOption();
                 option.setItemId(itemId);
@@ -560,7 +571,7 @@ public class ItemBankService {
      * @param id 题目ID
      * @return 题目信息（包含选项）
      */
-    public ItemBank getItemBankById(Long id) {
+    public ItemBankVO getItemBankById(Long id) {
         ItemBank itemBank = itemBankMapper.selectById(id);
         if (itemBank == null) {
             throw new BusinessException(1, "题目不存在");
@@ -568,9 +579,28 @@ public class ItemBankService {
 
         // 查询选项
         List<ItemOption> options = itemOptionMapper.selectByItemId(id);
-        itemBank.setOptions(options);
 
-        return itemBank;
+        List<ItemOptionVO>  optionVOS = new ArrayList<>();
+        Integer typeId = itemBank.getTypeId();
+        if ( typeId == 3 ) {
+            Boolean isCorrect = options.stream().anyMatch(ItemOption::getIsCorrect);
+            ItemOptionVO correctOptionVO = new ItemOptionVO();
+            correctOptionVO.setChecked(isCorrect);
+            optionVOS.add(correctOptionVO);
+        } else {
+            for  (ItemOption option : options) {
+                ItemOptionVO optionVO = new ItemOptionVO();
+                optionVO.setTitle(option.getOptionTitle());
+                optionVO.setChecked(option.getIsCorrect());
+                optionVOS.add(optionVO);
+            }
+        }
+
+        ItemBankVO itemBankVO = new ItemBankVO();
+        BeanUtils.copyProperties(itemBank, itemBankVO);
+        itemBankVO.setOptions(optionVOS);
+
+        return itemBankVO;
     }
 
     /**
