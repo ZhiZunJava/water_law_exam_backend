@@ -19,6 +19,7 @@ public class WaterLawExamBackendApplication {
      */
     public static void main(String[] args) {
         SpringApplication.run(WaterLawExamBackendApplication.class, args);
+        System.out.println("水行政执法资格考试管理系统启动成功");
     }
 
 }

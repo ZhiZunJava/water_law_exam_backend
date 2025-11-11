@@ -38,6 +38,56 @@
         WHERE id = #{id}
     </update>
 
+    <select id="selectByPage" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM tb_admin
+        <where>
+            <if test="key != null and key != ''">
+                (name LIKE CONCAT('%', #{key}, '%')
+                 OR user_no LIKE CONCAT('%', #{key}, '%'))
+            </if>
+        </where>
+        ORDER BY id DESC
+    </select>
+
+    <insert id="insertAdmin" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_admin (user_no, name, pwd, locked, create_time, update_time)
+        VALUES (#{userNo}, #{name}, #{pwd}, #{locked}, NOW(), NOW())
+    </insert>
+
+    <update id="updateBase">
+        UPDATE tb_admin
+        SET name = #{name},
+            user_no = #{userNo},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="countByUserNoExcludeId" resultType="int">
+        SELECT COUNT(*)
+        FROM tb_admin
+        WHERE user_no = #{userNo}
+        <if test="excludeId != null">
+            AND id &lt;&gt; #{excludeId}
+        </if>
+    </select>
+
+    <delete id="deleteBatch">
+        DELETE FROM tb_admin
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <update id="toggleLocked">
+        UPDATE tb_admin
+        SET locked = NOT locked,
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
 </mapper>
 
 

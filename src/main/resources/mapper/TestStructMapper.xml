@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.can.water_law_exam_backend.mapper.TestStructMapper">
+
+    <resultMap id="BaseResultMap" type="org.can.water_law_exam_backend.entity.TestStruct">
+        <id column="id" property="id"/>
+        <result column="type_id" property="typeId"/>
+        <result column="type_remarks" property="typeRemarks"/>
+        <result column="score" property="score"/>
+        <result column="totality" property="totality"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="type_name" property="typeName"/>
+    </resultMap>
+
+    <select id="selectAllWithType" resultMap="BaseResultMap">
+        SELECT ts.*, it.type_name
+        FROM tb_test_struct ts
+        LEFT JOIN tb_item_type it ON ts.type_id = it.id
+        ORDER BY ts.type_id ASC
+    </select>
+
+    <delete id="deleteAll">
+        DELETE FROM tb_test_struct
+    </delete>
+
+    <insert id="insertBatch">
+        INSERT INTO tb_test_struct (type_id, type_remarks, score, totality)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.typeId}, (#{item.typeRemarks}), #{item.score}, #{item.totality})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        score = VALUES(score),
+        totality = VALUES(totality)
+    </insert>
+
+</mapper>
+
+
