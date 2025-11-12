@@ -609,7 +609,7 @@ public class ItemBankService {
      * @param request 分页查询请求
      * @return 分页结果
      */
-    public PageResult<ItemBank> getItemBanksByPage(ItemBankPageRequest request) {
+    public PageResult<ItemBankVO> getItemBanksByPage(ItemBankPageRequest request) {
         // 获取查询参数
         Integer categoryId = null;
         Integer typeId = null;
@@ -618,28 +618,53 @@ public class ItemBankService {
         if (request.getParam() != null) {
             categoryId = request.getParam().getCId();
             typeId = request.getParam().getTId();
-            
+
             if (request.getParam().getKey() != null) {
                 key = request.getParam().getKey().trim();
-                if (key.isEmpty()) {
-                    key = null;
-                }
+                key = key.isEmpty() ? null : key; // 简化空字符串处理
             }
         }
 
         // 使用PageHelper进行分页
         PageHelper.startPage(request.getPage(), request.getSize());
-        List<ItemBank> list = itemBankMapper.selectByPage(categoryId, typeId, key);
-        
-        // 为每个题目加载选项
-        for (ItemBank itemBank : list) {
-            List<ItemOption> options = itemOptionMapper.selectByItemId(itemBank.getId());
-            itemBank.setOptions(options);
-        }
-        
-        PageInfo<ItemBank> pageInfo = new PageInfo<>(list);
+        List<ItemBank> itemBankList = itemBankMapper.selectByPage(categoryId, typeId, key);
 
-        return PageResult.of(pageInfo);
+        // 转换为VO列表并处理选项
+        List<ItemBankVO> voList = new ArrayList<>();
+        for (ItemBank itemBank : itemBankList) {
+            // 1. 基础属性拷贝
+            ItemBankVO itemBankVO = new ItemBankVO();
+            BeanUtils.copyProperties(itemBank, itemBankVO);
+
+            // 2. 处理选项
+            List<ItemOption> options = itemOptionMapper.selectByItemId(itemBank.getId());
+            List<ItemOptionVO> optionVOS = new ArrayList<>();
+
+            if (itemBank.getTypeId() == 3) { // 特定题型处理
+                boolean hasCorrect = options.stream().anyMatch(ItemOption::getIsCorrect);
+                ItemOptionVO correctVO = new ItemOptionVO();
+                correctVO.setChecked(hasCorrect);
+                optionVOS.add(correctVO);
+            } else { // 普通题型处理
+                for (ItemOption option : options) {
+                    ItemOptionVO optionVO = new ItemOptionVO();
+                    optionVO.setTitle(option.getOptionTitle());
+                    optionVO.setChecked(option.getIsCorrect());
+                    optionVOS.add(optionVO);
+                }
+            }
+
+            itemBankVO.setOptions(optionVOS);
+            voList.add(itemBankVO);
+        }
+
+        // 构建分页结果（基于原始分页信息转换）
+        PageInfo<ItemBank> originalPageInfo = new PageInfo<>(itemBankList);
+        PageInfo<ItemBankVO> voPageInfo = new PageInfo<>(voList);
+        voPageInfo.setTotal(originalPageInfo.getTotal()); // 复用总条数
+        voPageInfo.setPages(originalPageInfo.getPages()); // 复用总页数
+
+        return PageResult.of(voPageInfo);
     }
 }
 

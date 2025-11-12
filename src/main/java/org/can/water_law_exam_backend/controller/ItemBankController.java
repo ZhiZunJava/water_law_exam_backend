@@ -121,9 +121,9 @@ public class ItemBankController {
      */
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/pages")
-    public Result<PageResult<ItemBank>> getItemBanksByPage(@Valid @RequestBody  ItemBankPageRequest request) {
+    public Result<PageResult<ItemBankVO>> getItemBanksByPage(@Valid @RequestBody  ItemBankPageRequest request) {
         log.info("分页查询题目列表：page={}, size={}", request.getPage(), request.getSize());
-        PageResult<ItemBank> result = itemBankService.getItemBanksByPage(request);
+        PageResult<ItemBankVO> result = itemBankService.getItemBanksByPage(request);
         return Result.success(result);
     }
 }
