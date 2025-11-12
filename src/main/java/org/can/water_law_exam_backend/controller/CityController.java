@@ -47,7 +47,7 @@ public class CityController {
      *
      * @return 分页结果
      */
-    @GetMapping("/pages")
+    @PostMapping("/pages")
     public Result<PageResult<City>> getCitiesByPage( @Valid @RequestBody CityPageRequest request) {
         log.info("分页查询城市列表：page={}, size={}, total={}, key={}", request.getPage(), request.getSize(), request.getTotal(), request.getParam().getKey());
         PageResult<City> result = cityService.getCitiesByPage(request);

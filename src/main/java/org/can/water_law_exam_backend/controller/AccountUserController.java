@@ -112,7 +112,7 @@ public class AccountUserController {
      * @return 分页结果
      */
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/pages")
+    @PostMapping("/pages")
     public Result<PageResult<AccountUserVO>> getAccountUsersByPage(@Valid @RequestBody AccountUserPageRequest request) {
         log.info("分页查询学员列表请求：page={}, size={}", request.getPage(), request.getSize());
         PageResult<AccountUserVO> result = accountUserService.getAccountUsersByPage(request);

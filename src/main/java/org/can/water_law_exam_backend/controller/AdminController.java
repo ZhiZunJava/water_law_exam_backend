@@ -51,20 +51,9 @@ public class AdminController {
      * 采用JSON Body或者QueryParam两种方式均可。
      */
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/pages")
-    public Result<PageResult<AdminVO>> pages(@RequestBody(required = false) AdminPageRequest body,
-                                             @RequestParam(value = "page", required = false) Integer page,
-                                             @RequestParam(value = "size", required = false) Integer size,
-                                             @RequestParam(value = "key", required = false) String key) {
-        AdminPageRequest req = body != null ? body : new AdminPageRequest();
-        if (body == null) {
-            req.setPage(page != null ? page : 1);
-            req.setSize(size != null ? size : 10);
-            AdminPageRequest.Param p = new AdminPageRequest.Param();
-            p.setKey(key);
-            req.setParam(p);
-        }
-        PageResult<AdminVO> result = adminService.getAdminsByPage(req);
+    @PostMapping("/pages")
+    public Result<PageResult<AdminVO>> pages(@RequestBody(required = false) AdminPageRequest body) {
+        PageResult<AdminVO> result = adminService.getAdminsByPage(body);
         return Result.success(result);
     }
 
