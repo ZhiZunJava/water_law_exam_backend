@@ -104,5 +104,26 @@
         ORDER BY ib.create_time DESC
     </select>
 
+    <!-- 按题型随机抽取题目ID -->
+    <select id="selectRandomByType" resultType="long">
+        SELECT id FROM tb_item_bank
+        WHERE type_id = #{typeId}
+        ORDER BY RAND()
+        LIMIT #{limit}
+    </select>
+
+    <!-- 统计某题型题目数量 -->
+    <select id="countByType" resultType="int">
+        SELECT COUNT(1) FROM tb_item_bank WHERE type_id = #{typeId}
+    </select>
+
+    <!-- 按题型按主键顺序分页返回题目ID（用于随机偏移采样） -->
+    <select id="selectIdsByTypeWithOffset" resultType="long">
+        SELECT id FROM tb_item_bank
+        WHERE type_id = #{typeId}
+        ORDER BY id
+        LIMIT #{offset}, #{limit}
+    </select>
+
 </mapper>
 

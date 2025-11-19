@@ -1,6 +1,7 @@
 package org.can.water_law_exam_backend.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.can.water_law_exam_backend.entity.ItemType;
 
 import java.util.List;
@@ -27,7 +28,7 @@ public interface ItemTypeMapper {
      * @param id 题型ID
      * @return 题型信息
      */
-    // ItemType selectById(Integer id);
+    ItemType selectById(@Param("id") Integer id);
 
     /**
      * 新增题型

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.can.water_law_exam_backend.mapper.TemplateDetailMapper">
+
+    <resultMap id="DetailResultMap" type="org.can.water_law_exam_backend.entity.TemplateDetail">
+        <id property="id" column="id"/>
+        <result property="templateId" column="template_id"/>
+        <result property="typeId" column="type_id"/>
+        <result property="itemCount" column="item_count"/>
+        <result property="scorePerItem" column="score_per_item"/>
+    </resultMap>
+
+    <delete id="deleteByTemplateId">
+        DELETE FROM tb_template_detail WHERE template_id = #{templateId}
+    </delete>
+
+    <insert id="insertBatch">
+        INSERT INTO tb_template_detail (template_id, type_id, item_count, score_per_item)
+        VALUES
+        <foreach collection="list" item="it" separator=",">
+            (#{it.templateId}, #{it.typeId}, #{it.itemCount}, #{it.scorePerItem})
+        </foreach>
+    </insert>
+
+    <select id="selectByTemplateId" resultMap="DetailResultMap">
+        SELECT id, template_id, type_id, item_count, score_per_item
+        FROM tb_template_detail
+        WHERE template_id = #{templateId}
+        ORDER BY id ASC
+    </select>
+</mapper>

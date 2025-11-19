@@ -19,11 +19,11 @@
     </select>
 
     <!-- 根据ID查询题型 -->
-    <!-- <select id="selectById" resultMap="ItemTypeResultMap">
+    <select id="selectById" resultMap="ItemTypeResultMap">
         SELECT id, type_name, type_remarks, create_time
         FROM tb_item_type
         WHERE id = #{id}
-    </select> -->
+    </select>
 
     <!-- 新增题型 -->
     <!-- <insert id="insert" parameterType="org.can.water_law_exam_backend.entity.ItemType"

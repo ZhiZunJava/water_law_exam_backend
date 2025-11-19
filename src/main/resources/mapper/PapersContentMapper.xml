@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.can.water_law_exam_backend.mapper.PapersContentMapper">
+
+    <resultMap id="ContentResultMap" type="org.can.water_law_exam_backend.entity.PapersContent">
+        <id property="id" column="id"/>
+        <result property="papersId" column="papers_id"/>
+        <result property="papersNo" column="papers_no"/>
+        <result property="itemId" column="item_id"/>
+        <result property="typeId" column="type_id"/>
+        <result property="score" column="score"/>
+        <result property="sortOrder" column="sort_order"/>
+    </resultMap>
+
+    <insert id="insertBatch">
+        INSERT INTO tb_papers_content (papers_id, papers_no, item_id, type_id, score, sort_order)
+        VALUES
+        <foreach collection="list" item="it" separator=",">
+            (#{it.papersId}, #{it.papersNo}, #{it.itemId}, #{it.typeId}, #{it.score}, #{it.sortOrder})
+        </foreach>
+    </insert>
+
+    <delete id="deleteByPapersIds">
+        DELETE FROM tb_papers_content WHERE papers_id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">#{id}</foreach>
+    </delete>
+
+    <select id="selectByPapersIdAndNo" resultMap="ContentResultMap">
+        SELECT id, papers_id, papers_no, item_id, type_id, score, sort_order
+        FROM tb_papers_content
+        WHERE papers_id = #{papersId} AND papers_no = #{papersNo}
+        ORDER BY sort_order ASC
+    </select>
+</mapper>

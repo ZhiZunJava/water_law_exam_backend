@@ -63,5 +63,26 @@ public interface ItemBankMapper {
     List<ItemBank> selectByPage(@Param("categoryId") Integer categoryId,
                                  @Param("typeId") Integer typeId,
                                  @Param("key") String key);
+
+    /**
+     * 按题型随机抽取题目ID
+     *
+     * @param typeId 题型ID
+     * @param limit  数量
+     * @return 题目ID列表
+     */
+    List<Long> selectRandomByType(@Param("typeId") Integer typeId, @Param("limit") Integer limit);
+
+    /**
+     * 统计某题型题目数量
+     */
+    int countByType(@Param("typeId") Integer typeId);
+
+    /**
+     * 按题型按主键顺序分页返回题目ID（用于随机偏移采样）
+     */
+    List<Long> selectIdsByTypeWithOffset(@Param("typeId") Integer typeId,
+                                         @Param("limit") Integer limit,
+                                         @Param("offset") Integer offset);
 }
 
