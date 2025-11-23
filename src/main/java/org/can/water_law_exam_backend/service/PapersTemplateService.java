@@ -35,6 +35,7 @@ public class PapersTemplateService {
     private final PapersTemplateMapper papersTemplateMapper;
     private final TemplateDetailMapper templateDetailMapper;
     private final ItemTypeMapper itemTypeMapper;
+    private final PapersService papersService;
 
     @Transactional(rollbackFor = Exception.class)
     public int add(TemplateAddRequest request) {
@@ -85,14 +86,17 @@ public class PapersTemplateService {
         if (ids == null || ids.isEmpty()) {
             throw new BusinessException(1, "请选择要删除的模板");
         }
+        List<Long> ids1 = new ArrayList<>();
         // 先删明细
         for (Integer id : ids) {
+            ids1.add(Long.valueOf(id));
             templateDetailMapper.deleteByTemplateId(id);
         }
         int rows = papersTemplateMapper.deleteBatch(ids);
         if (rows == 0) {
             throw new BusinessException(1, "删除失败");
         }
+        papersService.deleteBatch(ids1);
         return rows;
     }
 
