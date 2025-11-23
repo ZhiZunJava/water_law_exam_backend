@@ -37,6 +37,9 @@ public class ItemBankAddRequest {
     @NotNull(message = "题目分类ID不能为空")
     private Integer categoryId;
 
+    @NotNull(message = "题目是否重点不能为空")
+    private Boolean isKeyItem;
+
     /**
      * 答案选项列表
      */

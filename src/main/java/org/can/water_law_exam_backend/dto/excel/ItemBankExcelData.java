@@ -86,5 +86,8 @@ public class ItemBankExcelData {
      */
     @ExcelProperty(index = 12)
     private String categoryId;
+
+    @ExcelProperty(index = 13)
+    private String isKeyItem;
 }
 

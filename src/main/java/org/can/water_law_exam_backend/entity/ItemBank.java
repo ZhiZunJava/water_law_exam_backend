@@ -46,6 +46,8 @@ public class ItemBank {
      */
     private String explanation;
 
+    private Boolean isKeyItem;
+
     /**
      * 创建时间
      */

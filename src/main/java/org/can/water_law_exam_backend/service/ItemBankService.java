@@ -42,7 +42,7 @@ public class ItemBankService {
 
     /**
      * 导入题库（从Excel文件）
-     * Excel格式：题型 | 题干 | 选项A | 选项B | 选项C | 选项D | 答案 | 答案解析 | 题目分类ID
+     * Excel格式：题型 | 题干 | 选项A | 选项B | 选项C | 选项D | 答案 | 答案解析 | 题目分类ID | 重点题目
      * 
      * @param file Excel 文件
      */
@@ -65,7 +65,7 @@ public class ItemBankService {
             
             // 使用 FastExcel读取Excel，指定读取Sheet1
             FastExcel.read(is, ItemBankExcelData.class, listener)
-                    .sheet("Sheet1")
+                    .sheet("导入题目模板")
                     .doRead();
             
             // 获取导入结果
@@ -131,6 +131,13 @@ public class ItemBankService {
                 itemBank.setTypeId(typeId);
                 itemBank.setCategoryId(categoryId);
                 itemBank.setContent(data.getContent().trim());
+                boolean isKeyItem;
+                try {
+                    isKeyItem = Boolean.parseBoolean(data.getIsKeyItem().trim());
+                } catch (RuntimeException e) {
+                    isKeyItem = false;
+                }
+                itemBank.setIsKeyItem(isKeyItem);
                 itemBank.setExplanation(data.getExplanation() != null ? data.getExplanation().trim() : "");
                 
                 // 插入题目
@@ -355,6 +362,7 @@ public class ItemBankService {
         itemBank.setCategoryId(request.getCategoryId());
         itemBank.setContent(request.getContent());
         itemBank.setExplanation(request.getExplain());
+        itemBank.setIsKeyItem(request.getIsKeyItem() != null && request.getIsKeyItem());
 
         // 插入题目
         int rows = itemBankMapper.insert(itemBank);
@@ -519,6 +527,7 @@ public class ItemBankService {
         itemBank.setId(request.getId());
         itemBank.setTypeId(request.getTypeId());
         itemBank.setCategoryId(request.getCategoryId());
+        itemBank.setIsKeyItem(request.getIsKeyItem() != null && request.getIsKeyItem());
         itemBank.setContent(request.getContent());
         itemBank.setExplanation(request.getExplain());
 

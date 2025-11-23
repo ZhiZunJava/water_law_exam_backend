@@ -11,5 +11,6 @@ public class Papers {
     private Integer papersNo;
     private Integer totalScore;
     private Integer templateId;
+    private Long creatorId;
     private LocalDateTime createTime;
 }

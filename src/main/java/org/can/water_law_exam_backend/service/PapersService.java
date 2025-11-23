@@ -4,6 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.util.Internal;
 import org.can.water_law_exam_backend.dto.request.papers.PapersCreateRequest;
 import org.can.water_law_exam_backend.dto.request.template.TemplatePageRequest;
 import org.can.water_law_exam_backend.dto.response.common.PageResult;
@@ -41,6 +42,7 @@ public class PapersService {
     private final ItemBankMapper itemBankMapper;
     private final ItemTypeMapper itemTypeMapper;
     private final ItemOptionMapper itemOptionMapper;
+    private final AdminMapper adminMapper;
 
     @Transactional(rollbackFor = Exception.class)
     public int create(PapersCreateRequest req) {
@@ -67,7 +69,7 @@ public class PapersService {
             paper.setPapersNo(no);
             paper.setTotalScore(sumScore);
             paper.setTemplateId(papersTemplate.getId());
-            // 无模板ID来源
+            paper.setCreatorId(currentAdminId());
             papersMapper.insert(paper);
 
             // 生成结构
@@ -139,8 +141,11 @@ public class PapersService {
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         for (Papers p : list) {
             PapersListVO vo = new PapersListVO();
+            Admin creator = adminMapper.selectById(p.getCreatorId());
             vo.setId(p.getId());
+            vo.setNo(p.getPapersNo());
             vo.setTitle(p.getPapersTitle());
+            vo.setCreator(creator != null ? creator.getName() : "未知作者");
             vo.setCreateTime(p.getCreateTime() == null ? null : p.getCreateTime().format(fmt));
             vos.add(vo);
         }
@@ -166,9 +171,9 @@ public class PapersService {
         PapersAbstractVO vo = new PapersAbstractVO();
         vo.setId(p.getId());
         vo.setTitle(p.getPapersTitle());
-        // papersCount 取自模板，如无模板ID，则以该试卷的序号估计
-        PapersTemplate tpl = (p.getTemplateId() != null) ? papersTemplateMapper.selectById(p.getTemplateId()) : null;
-        vo.setPapersCount(tpl != null ? tpl.getPapersCount() : p.getPapersNo());
+        PapersTemplate tpl = papersTemplateMapper.selectById(p.getTemplateId());
+        vo.setPapersCount(tpl.getPapersCount());
+        vo.setPapersNo(p.getPapersNo());
         vo.setScore(p.getTotalScore());
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         vo.setCreateTime(p.getCreateTime() == null ? null : p.getCreateTime().format(fmt));
@@ -178,6 +183,9 @@ public class PapersService {
     public PapersContentVO content(Long id, Integer no) {
         Papers p = papersMapper.selectById(id);
         if (p == null) throw new BusinessException(1, "试卷不存在");
+        if (!Objects.equals(p.getPapersNo(), no)) {
+            throw new BusinessException(1, "试卷对应序号不正确");
+        }
         PapersContentVO resp = new PapersContentVO();
         resp.setId(p.getId());
         resp.setNo(no);
@@ -245,11 +253,14 @@ public class PapersService {
 
     private void validate(PapersCreateRequest req, PapersTemplate template) {
         List<TemplateDetail> templateDetails = templateDetailMapper.selectByTemplateId(template.getId());
+        if (templateDetails.isEmpty()) {
+            throw new BusinessException(1, "模板未配置题型详情");
+        }
         if (req.getDetails() == null || req.getDetails().isEmpty()) {
             throw new BusinessException(1, "明细不能为空");
         }
-        if (templateDetails.isEmpty()) {
-            throw new BusinessException(1, "模板未配置题型详情");
+        if (!Objects.equals(req.getPapersCount(), template.getPapersCount())) {
+            throw new BusinessException(1, "试卷数量不一致，应为：" + template.getPapersCount());
         }
         Map<Integer, TemplateDetail> detailMap = templateDetails.stream()
                 .collect(Collectors.toMap(TemplateDetail::getTypeId, d -> d, (k1, k2) -> k1));
@@ -273,6 +284,13 @@ public class PapersService {
             if (d.getTotalScore() == null || d.getTotalScore() <= 0) {
                 throw new BusinessException(1, "总分必须大于0");
             }
+            int totalScore = templateDetail.getScorePerItem()
+                    .multiply(BigDecimal.valueOf(templateDetail.getItemCount()))
+                    .intValue();
+            if (Double.compare(d.getTotalScore(), totalScore) != 0) {
+                throw new BusinessException(1, "题型[" + t.getTypeName() + "]总分不一致，应为：" + totalScore);
+
+            }
             sum += d.getTotalScore();
         }
         if (!Objects.equals(sum, req.getMaxScore())) {
@@ -280,17 +298,18 @@ public class PapersService {
         }
     }
 
-    private String currentAdminUsername() {
+    private Long currentAdminId() {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth == null) return null;
-            String name = auth.getName(); // 可能为 "admin:username" 或 "user:..."
-            if (name != null && name.startsWith("admin:")) {
-                return name.substring("admin:".length());
+            if (auth == null) return 0L;
+            String name = auth.getName();
+            if (name != null) {
+                Admin admin = adminMapper.selectByUserNo(name);
+                return admin.getId();
             }
-            return name;
+            return 0L;
         } catch (Exception e) {
-            return null;
+            return 0L;
         }
     }
 }

@@ -7,6 +7,7 @@
         <id column="id" property="id"/>
         <result column="type_id" property="typeId"/>
         <result column="category_id" property="categoryId"/>
+        <result column="is_key_item" property="isKeyItem"/>
         <result column="content" property="content"/>
         <result column="explanation" property="explanation"/>
         <result column="create_time" property="createTime"/>
@@ -18,6 +19,7 @@
         <result column="type_id" property="typeId"/>
         <result column="type_name" property="typeName"/>
         <result column="category_id" property="categoryId"/>
+        <result column="is_key_item" property="isKeyItem"/>
         <result column="category_name" property="categoryName"/>
         <result column="content" property="content"/>
         <result column="explanation" property="explanation"/>
@@ -27,8 +29,8 @@
 
     <!-- 插入题目 -->
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO tb_item_bank (type_id, category_id, content, explanation)
-        VALUES (#{typeId}, #{categoryId}, #{content}, #{explanation})
+        INSERT INTO tb_item_bank (type_id, category_id, content, explanation, is_key_item)
+        VALUES (#{typeId}, #{categoryId}, #{content}, #{explanation}, #{isKeyItem})
     </insert>
 
     <!-- 更新题目 -->
@@ -38,6 +40,7 @@
             category_id = #{categoryId},
             content = #{content},
             explanation = #{explanation},
+            is_key_item = #{isKeyItem},
             update_time = NOW()
         WHERE id = #{id}
     </update>
@@ -64,6 +67,7 @@
             ib.type_id,
             it.type_name,
             ib.category_id,
+            ib.is_key_item,
             ic.title as category_name,
             ib.content,
             ib.explanation,
@@ -82,6 +86,7 @@
             ib.type_id,
             it.type_name,
             ib.category_id,
+            ib.is_key_item,
             ic.title as category_name,
             ib.content,
             ib.explanation,

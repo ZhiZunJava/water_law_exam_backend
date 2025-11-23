@@ -9,12 +9,13 @@
         <result property="papersNo" column="papers_no"/>
         <result property="totalScore" column="total_score"/>
         <result property="templateId" column="template_id"/>
+        <result property="creatorId" column="creator_id"/>
         <result property="createTime" column="create_time"/>
     </resultMap>
 
     <insert id="insert" parameterType="org.can.water_law_exam_backend.entity.Papers" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO tb_papers (papers_title, papers_no, total_score, template_id)
-        VALUES (#{papersTitle}, #{papersNo}, #{totalScore}, #{templateId})
+        INSERT INTO tb_papers (papers_title, papers_no, total_score, template_id, creator_id)
+        VALUES (#{papersTitle}, #{papersNo}, #{totalScore}, #{templateId}, #{creatorId})
     </insert>
 
     <delete id="deleteBatch">
@@ -23,13 +24,13 @@
     </delete>
 
     <select id="selectById" resultMap="PapersResultMap">
-        SELECT id, papers_title, papers_no, total_score, template_id, create_time
+        SELECT id, papers_title, papers_no, total_score, template_id, creator_id, create_time
         FROM tb_papers
         WHERE id = #{id}
     </select>
 
     <select id="selectByPage" resultMap="PapersResultMap">
-        SELECT id, papers_title, papers_no, total_score, template_id, create_time
+        SELECT id, papers_title, papers_no, total_score, template_id, creator_id, create_time
         FROM tb_papers
         <where>
             <if test="key != null and key != ''">

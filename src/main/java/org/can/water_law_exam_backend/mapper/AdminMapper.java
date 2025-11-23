@@ -31,6 +31,8 @@ public interface AdminMapper {
      */
     Admin selectById(@Param("id") Long id);
 
+    Admin selectByName(@Param("name") String name);
+
     /**
      * 更新管理员密码
      *

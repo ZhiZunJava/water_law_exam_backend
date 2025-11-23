@@ -7,6 +7,8 @@ public class PapersAbstractVO {
     private Long id;
     private String title;
     private Integer papersCount;
+    private Integer papersNo;
     private Integer score;
+    private String creator;
     private String createTime;
 }

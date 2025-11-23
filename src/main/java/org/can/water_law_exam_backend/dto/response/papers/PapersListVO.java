@@ -6,5 +6,7 @@ import lombok.Data;
 public class PapersListVO {
     private Long id;
     private String title;
+    private Integer no;
+    private String creator;
     private String createTime; // 格式化为字符串
 }
