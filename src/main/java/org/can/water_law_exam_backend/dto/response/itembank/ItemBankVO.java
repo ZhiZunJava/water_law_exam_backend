@@ -1,7 +1,6 @@
 package org.can.water_law_exam_backend.dto.response.itembank;
 
 import lombok.Data;
-import org.can.water_law_exam_backend.entity.ItemOption;
 
 import java.time.LocalDateTime;
 import java.util.List;

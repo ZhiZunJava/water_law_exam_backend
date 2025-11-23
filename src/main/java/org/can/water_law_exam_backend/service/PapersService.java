@@ -4,7 +4,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.util.Internal;
 import org.can.water_law_exam_backend.dto.request.papers.PapersCreateRequest;
 import org.can.water_law_exam_backend.dto.request.template.TemplatePageRequest;
 import org.can.water_law_exam_backend.dto.response.common.PageResult;
@@ -53,12 +52,12 @@ public class PapersService {
         validate(req, papersTemplate);
         // 每个题型的每题分值与数量
         Map<Integer, BigDecimal> scorePerItem = new HashMap<>();
-        Map<Integer, Integer> countPerType = new HashMap<>();
+        // Map<Integer, Integer> countPerType = new HashMap<>();
         int sumScore = 0;
         for (PapersCreateRequest.DetailDTO d : req.getDetails()) {
             BigDecimal spi = new BigDecimal(d.getTotalScore()).divide(new BigDecimal(d.getTotality()), 2, RoundingMode.HALF_UP);
             scorePerItem.put(d.getTypeId(), spi);
-            countPerType.put(d.getTypeId(), d.getTotality());
+            //  countPerType.put(d.getTypeId(), d.getTotality());
             sumScore += d.getTotalScore();
         }
 
