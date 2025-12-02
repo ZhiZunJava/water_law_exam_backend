@@ -1,5 +1,6 @@
 package org.can.water_law_exam_backend.dto.request.itembank;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.can.water_law_exam_backend.common.base.PageRequest;
@@ -24,11 +25,13 @@ public class ItemBankPageRequest extends PageRequest {
         /**
          * 题目类别ID（可选）
          */
+        @JsonProperty("cId")
         private Integer cId;
 
         /**
          * 题目类型ID（可选）
          */
+        @JsonProperty("tId")
         private Integer tId;
 
         /**

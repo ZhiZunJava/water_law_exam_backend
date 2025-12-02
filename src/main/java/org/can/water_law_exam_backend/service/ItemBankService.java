@@ -131,9 +131,11 @@ public class ItemBankService {
                 itemBank.setTypeId(typeId);
                 itemBank.setCategoryId(categoryId);
                 itemBank.setContent(data.getContent().trim());
+                // 解析是否重点题目：支持 "1"/"true" 表示是，"0"/"false" 表示否
                 boolean isKeyItem;
                 try {
-                    isKeyItem = Boolean.parseBoolean(data.getIsKeyItem().trim());
+                    String keyItemStr = data.getIsKeyItem().trim();
+                    isKeyItem = "1".equals(keyItemStr) || "true".equalsIgnoreCase(keyItemStr);
                 } catch (RuntimeException e) {
                     isKeyItem = false;
                 }
@@ -623,7 +625,6 @@ public class ItemBankService {
         Integer categoryId = null;
         Integer typeId = null;
         String key = null;
-
         if (request.getParam() != null) {
             categoryId = request.getParam().getCId();
             typeId = request.getParam().getTId();

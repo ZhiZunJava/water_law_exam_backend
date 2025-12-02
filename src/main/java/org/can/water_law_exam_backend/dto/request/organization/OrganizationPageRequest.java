@@ -1,5 +1,6 @@
 package org.can.water_law_exam_backend.dto.request.organization;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.can.water_law_exam_backend.common.base.PageRequest;
@@ -27,6 +28,7 @@ public class OrganizationPageRequest extends PageRequest {
         /**
          * 城市ID（无此参数则不区分城市）
          */
+        @JsonProperty("cId")
         private Integer cId;
         
         /**

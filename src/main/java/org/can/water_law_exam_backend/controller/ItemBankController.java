@@ -114,7 +114,7 @@ public class ItemBankController {
     /**
      * 5.6 获取题目列表（分页）
      * 请求路径：/ib/pages
-     * 请求方式：GET
+     * 请求方式：POST
      *
      * @param request 分页查询请求
      * @return 分页结果
