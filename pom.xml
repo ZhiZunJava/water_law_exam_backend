@@ -10,7 +10,7 @@
     </parent>
     <groupId>org.can</groupId>
     <artifactId>water_law_exam_backend</artifactId>
-    <version>0.1.0</version>
+    <version>1.0.0</version>
     <name>water_law_exam_backend</name>
     <description>water_law_exam_backend</description>
     <url/>
