@@ -5,6 +5,7 @@
 
     <resultMap id="PapersResultMap" type="org.can.water_law_exam_backend.entity.Papers">
         <id property="id" column="id"/>
+        <result property="groupId" column="group_id"/>
         <result property="papersTitle" column="papers_title"/>
         <result property="papersNo" column="papers_no"/>
         <result property="totalScore" column="total_score"/>
@@ -14,8 +15,8 @@
     </resultMap>
 
     <insert id="insert" parameterType="org.can.water_law_exam_backend.entity.Papers" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO tb_papers (papers_title, papers_no, total_score, template_id, creator_id)
-        VALUES (#{papersTitle}, #{papersNo}, #{totalScore}, #{templateId}, #{creatorId})
+        INSERT INTO tb_papers (group_id, papers_title, papers_no, total_score, template_id, creator_id)
+        VALUES (#{groupId}, #{papersTitle}, #{papersNo}, #{totalScore}, #{templateId}, #{creatorId})
     </insert>
 
     <delete id="deleteBatch">
@@ -24,13 +25,13 @@
     </delete>
 
     <select id="selectById" resultMap="PapersResultMap">
-        SELECT id, papers_title, papers_no, total_score, template_id, creator_id, create_time
+        SELECT id, group_id, papers_title, papers_no, total_score, template_id, creator_id, create_time
         FROM tb_papers
         WHERE id = #{id}
     </select>
 
     <select id="selectByPage" resultMap="PapersResultMap">
-        SELECT id, papers_title, papers_no, total_score, template_id, creator_id, create_time
+        SELECT id, group_id, papers_title, papers_no, total_score, template_id, creator_id, create_time
         FROM tb_papers
         <where>
             <if test="key != null and key != ''">
@@ -38,5 +39,28 @@
             </if>
         </where>
         ORDER BY id DESC
+    </select>
+
+    <select id="selectByGroupId" resultMap="PapersResultMap">
+        SELECT id, group_id, papers_title, papers_no, total_score, template_id, creator_id, create_time
+        FROM tb_papers
+        WHERE group_id = #{groupId}
+        ORDER BY papers_no ASC
+    </select>
+
+    <select id="selectByGroupIds" resultMap="PapersResultMap">
+        SELECT id, group_id, papers_title, papers_no, total_score, template_id, creator_id, create_time
+        FROM tb_papers
+        WHERE group_id IN
+        <foreach collection="groupIds" item="gid" open="(" close=")" separator=",">
+            #{gid}
+        </foreach>
+    </select>
+
+    <select id="selectByGroupAndNo" resultMap="PapersResultMap">
+        SELECT id, group_id, papers_title, papers_no, total_score, template_id, creator_id, create_time
+        FROM tb_papers
+        WHERE group_id = #{groupId}
+          AND papers_no = #{papersNo}
     </select>
 </mapper>

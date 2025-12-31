@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.can.water_law_exam_backend.mapper.PapersGroupMapper">
+
+    <resultMap id="BaseResultMap" type="org.can.water_law_exam_backend.entity.PapersGroup">
+        <id property="id" column="id"/>
+        <result property="groupTitle" column="group_title"/>
+        <result property="papersCount" column="papers_count"/>
+        <result property="totalScore" column="total_score"/>
+        <result property="templateId" column="template_id"/>
+        <result property="creatorId" column="creator_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="org.can.water_law_exam_backend.entity.PapersGroup"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_papers_group (group_title, papers_count, total_score, template_id, creator_id)
+        VALUES (#{groupTitle}, #{papersCount}, #{totalScore}, #{templateId}, #{creatorId})
+    </insert>
+
+    <delete id="deleteBatch">
+        DELETE FROM tb_papers_group
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectByPage" resultMap="BaseResultMap">
+        SELECT *
+        FROM tb_papers_group
+        <where>
+            <if test="key != null and key != ''">
+                AND group_title LIKE CONCAT('%', #{key}, '%')
+            </if>
+        </where>
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT *
+        FROM tb_papers_group
+        WHERE id = #{id}
+    </select>
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

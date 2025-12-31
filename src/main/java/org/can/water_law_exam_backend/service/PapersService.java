@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.can.water_law_exam_backend.dto.request.papers.PapersCreateRequest;
 import org.can.water_law_exam_backend.dto.request.template.TemplatePageRequest;
 import org.can.water_law_exam_backend.dto.response.common.PageResult;
+import org.can.water_law_exam_backend.dto.response.papers.PapersGroupVO;
 import org.can.water_law_exam_backend.dto.response.papers.PapersListVO;
 import org.can.water_law_exam_backend.dto.response.papers.PapersAbstractVO;
 import org.can.water_law_exam_backend.dto.response.papers.PapersStructVO;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
 public class PapersService {
 
     private final PapersMapper papersMapper;
+    private final PapersGroupMapper papersGroupMapper;
     private final PapersStructMapper papersStructMapper;
     private final PapersContentMapper papersContentMapper;
     private final PapersTemplateMapper papersTemplateMapper;
@@ -61,14 +63,24 @@ public class PapersService {
             sumScore += d.getTotalScore();
         }
 
+        PapersGroup group = new PapersGroup();
+        group.setGroupTitle(req.getTemplateName());
+        group.setPapersCount(req.getPapersCount());
+        group.setTotalScore(sumScore);
+        group.setTemplateId(papersTemplate.getId());
+        Long creatorId = currentAdminId();
+        group.setCreatorId(creatorId);
+        papersGroupMapper.insert(group);
+
         int created = 0;
         for (int no = 1; no <= req.getPapersCount(); no++) {
             Papers paper = new Papers();
+            paper.setGroupId(group.getId());
             paper.setPapersTitle(req.getTemplateName());
             paper.setPapersNo(no);
             paper.setTotalScore(sumScore);
             paper.setTemplateId(papersTemplate.getId());
-            paper.setCreatorId(currentAdminId());
+            paper.setCreatorId(creatorId);
             papersMapper.insert(paper);
 
             // 生成结构
@@ -131,11 +143,51 @@ public class PapersService {
         return created;
     }
 
-    public PageResult<PapersListVO> pages(TemplatePageRequest request) {
+    public PageResult<PapersGroupVO> pages(TemplatePageRequest request) {
         String key = request.getParam() != null ? request.getParam().getKey() : null;
         PageHelper.startPage(request.getPage(), request.getSize());
-        List<Papers> list = papersMapper.selectByPage(key);
-        PageInfo<Papers> pi = new PageInfo<>(list);
+        List<PapersGroup> list = papersGroupMapper.selectByPage(key);
+        PageInfo<PapersGroup> pi = new PageInfo<>(list);
+        List<PapersGroupVO> vos = new ArrayList<>();
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        for (PapersGroup g : list) {
+            PapersGroupVO vo = new PapersGroupVO();
+            Admin creator = adminMapper.selectById(g.getCreatorId());
+            vo.setId(g.getId());
+            vo.setTitle(g.getGroupTitle());
+            vo.setPapersCount(g.getPapersCount());
+            vo.setTotalScore(g.getTotalScore());
+            vo.setCreator(creator != null ? creator.getName() : "未知作者");
+            vo.setCreateTime(g.getCreateTime() == null ? null : g.getCreateTime().format(fmt));
+            vos.add(vo);
+        }
+        PageInfo<PapersGroupVO> voPi = new PageInfo<>(vos);
+        voPi.setTotal(pi.getTotal());
+        voPi.setPages(pi.getPages());
+        return PageResult.of(voPi);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public int deleteBatch(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            throw new BusinessException(1, "请选择要删除的试卷");
+        }
+        List<Papers> papers = papersMapper.selectByGroupIds(ids);
+        List<Long> paperIds = papers.stream().map(Papers::getId).toList();
+        if (!paperIds.isEmpty()) {
+            papersStructMapper.deleteByPapersIds(paperIds);
+            papersContentMapper.deleteByPapersIds(paperIds);
+            papersMapper.deleteBatch(paperIds);
+        }
+        return papersGroupMapper.deleteBatch(ids);
+    }
+
+    public List<PapersListVO> listByGroup(Long groupId) {
+        PapersGroup group = papersGroupMapper.selectById(groupId);
+        if (group == null) {
+            throw new BusinessException(1, "试卷组不存在");
+        }
+        List<Papers> list = papersMapper.selectByGroupId(groupId);
         List<PapersListVO> vos = new ArrayList<>();
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         for (Papers p : list) {
@@ -148,43 +200,32 @@ public class PapersService {
             vo.setCreateTime(p.getCreateTime() == null ? null : p.getCreateTime().format(fmt));
             vos.add(vo);
         }
-        PageInfo<PapersListVO> voPi = new PageInfo<>(vos);
-        voPi.setTotal(pi.getTotal());
-        voPi.setPages(pi.getPages());
-        return PageResult.of(voPi);
+        return vos;
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public int deleteBatch(List<Long> ids) {
-        if (ids == null || ids.isEmpty()) {
-            throw new BusinessException(1, "请选择要删除的试卷");
+    /**
+     * 获取试卷摘要信息（按试卷组维度）
+     * 无论组内有多少套卷子，标题/总分/数量等摘要信息都是一致的，因此这里只按 groupId 查询
+     */
+    public PapersAbstractVO abstractInfo(Long groupId) {
+        PapersGroup group = papersGroupMapper.selectById(groupId);
+        if (group == null) {
+            throw new BusinessException(1, "试卷组不存在");
         }
-        papersStructMapper.deleteByPapersIds(ids);
-        papersContentMapper.deleteByPapersIds(ids);
-        return papersMapper.deleteBatch(ids);
-    }
-
-    public PapersAbstractVO abstractInfo(Long id) {
-        Papers p = papersMapper.selectById(id);
-        if (p == null) throw new BusinessException(1, "试卷不存在");
         PapersAbstractVO vo = new PapersAbstractVO();
-        vo.setId(p.getId());
-        vo.setTitle(p.getPapersTitle());
-        PapersTemplate tpl = papersTemplateMapper.selectById(p.getTemplateId());
-        vo.setPapersCount(tpl.getPapersCount());
-        vo.setPapersNo(p.getPapersNo());
-        vo.setScore(p.getTotalScore());
+        vo.setId(group.getId());
+        vo.setTitle(group.getGroupTitle());
+        vo.setPapersCount(group.getPapersCount());
+        vo.setPapersNo(null); // 组内多套卷子共用摘要，这里不区分具体序号
+        vo.setScore(group.getTotalScore());
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        vo.setCreateTime(p.getCreateTime() == null ? null : p.getCreateTime().format(fmt));
+        vo.setCreateTime(group.getCreateTime() == null ? null : group.getCreateTime().format(fmt));
         return vo;
     }
 
-    public PapersContentVO content(Long id, Integer no) {
-        Papers p = papersMapper.selectById(id);
+    public PapersContentVO content(Long groupId, Integer no, Boolean is_answer) {
+        Papers p = papersMapper.selectByGroupAndNo(groupId, no);
         if (p == null) throw new BusinessException(1, "试卷不存在");
-        if (!Objects.equals(p.getPapersNo(), no)) {
-            throw new BusinessException(1, "试卷对应序号不正确");
-        }
         PapersContentVO resp = new PapersContentVO();
         resp.setId(p.getId());
         resp.setNo(no);
@@ -192,7 +233,7 @@ public class PapersService {
         resp.setTotalScore(p.getTotalScore());
 
         // structs
-        List<PapersStruct> structs = papersStructMapper.selectByPapersId(id);
+        List<PapersStruct> structs = papersStructMapper.selectByPapersId(p.getId());
         List<PapersStructVO> structVOs = new ArrayList<>();
         for (PapersStruct s : structs) {
             PapersStructVO sv = new PapersStructVO();
@@ -205,7 +246,7 @@ public class PapersService {
         resp.setStructs(structVOs);
 
         // content
-        List<PapersContent> pcs = papersContentMapper.selectByPapersIdAndNo(id, no);
+        List<PapersContent> pcs = papersContentMapper.selectByPapersIdAndNo(p.getId(), no);
         // group by type
         Map<Integer, List<PapersContentItemVO>> grouped = new LinkedHashMap<>();
         for (PapersContent pc : pcs) {
@@ -225,14 +266,14 @@ public class PapersService {
                     for (ItemOption op : opts) {
                         PapersContentOptionVO ov = new PapersContentOptionVO();
                         ov.setTitle(op.getOptionTitle());
-                        ov.setChecked(op.getIsCorrect() != null && op.getIsCorrect() ? Boolean.TRUE : null);
+                        ov.setChecked(op.getIsCorrect() != null && op.getIsCorrect() && is_answer ? Boolean.TRUE : null);
                         optVOs.add(ov);
                     }
                 } else {
                     for (ItemOption op : opts) {
                         PapersContentOptionVO ov = new PapersContentOptionVO();
                         ov.setTitle(op.getOptionTitle());
-                        ov.setChecked(op.getIsCorrect() != null && op.getIsCorrect() ? Boolean.TRUE : null);
+                        ov.setChecked(op.getIsCorrect() != null && op.getIsCorrect() && is_answer ? Boolean.TRUE : null);
                         optVOs.add(ov);
                     }
                 }

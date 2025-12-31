@@ -8,6 +8,8 @@ import org.can.water_law_exam_backend.common.Result;
 import org.can.water_law_exam_backend.config.JwtProperties;
 import org.can.water_law_exam_backend.dto.request.auth.LoginRequest;
 import org.can.water_law_exam_backend.dto.request.auth.RegisterRequest;
+import org.can.water_law_exam_backend.dto.request.auth.UserPasswordUpdateRequest;
+import org.can.water_law_exam_backend.dto.request.auth.UserProfileUpdateRequest;
 import org.can.water_law_exam_backend.dto.response.auth.CurrentUserResponse;
 import org.can.water_law_exam_backend.dto.response.auth.LoginResponse;
 import org.can.water_law_exam_backend.dto.response.auth.RegisterResponse;
@@ -141,6 +143,33 @@ public class AuthController {
                 request.getName(), request.getIdNo(), request.getPhone());
         RegisterResponse response = authService.register(request);
         return Result.success("注册成功", response);
+    }
+
+    /**
+     * 学员获取个人基本信息
+     * 说明：等价于 /auth/current，但返回内容专注于个人信息，学员端可直接使用
+     */
+    @GetMapping("/profile")
+    public Result<CurrentUserResponse> profile(HttpServletRequest request) {
+        return getCurrentUser(request);
+    }
+
+    /**
+     * 学员修改个人基本信息（姓名、手机号）
+     */
+    @PostMapping("/profile")
+    public Result<String> updateProfile(@Valid @RequestBody UserProfileUpdateRequest request) {
+        authService.updateCurrentUserProfile(request);
+        return Result.success("修改个人信息成功");
+    }
+
+    /**
+     * 学员修改登录密码
+     */
+    @PostMapping("/password")
+    public Result<String> updatePassword(@Valid @RequestBody UserPasswordUpdateRequest request) {
+        authService.updateCurrentUserPassword(request);
+        return Result.success("修改密码成功");
     }
 }
 

@@ -4,14 +4,58 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * 试卷组实体，对应表 tb_papers_group
+ */
 @Data
-public class Papers {
+public class PapersGroup {
     private Long id;
-    private Long groupId;
-    private String papersTitle;
-    private Integer papersNo;
+    private String groupTitle;
+    private Integer papersCount;
     private Integer totalScore;
     private Integer templateId;
     private Long creatorId;
     private LocalDateTime createTime;
+    private LocalDateTime updateTime;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

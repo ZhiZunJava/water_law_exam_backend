@@ -12,6 +12,8 @@ import org.can.water_law_exam_backend.dto.request.itembank.ItemBankUpdateRequest
 import org.can.water_law_exam_backend.dto.response.common.PageResult;
 import org.can.water_law_exam_backend.dto.response.itembank.ItemBankVO;
 import org.can.water_law_exam_backend.dto.response.itembank.ItemOptionVO;
+import org.can.water_law_exam_backend.dto.response.teststruct.TestOptionVO;
+import org.can.water_law_exam_backend.dto.response.teststruct.TestQuestionVO;
 import org.can.water_law_exam_backend.entity.ItemBank;
 import org.can.water_law_exam_backend.entity.ItemOption;
 import org.can.water_law_exam_backend.exception.BusinessException;
@@ -27,7 +29,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 题库服务类
@@ -675,6 +680,75 @@ public class ItemBankService {
         voPageInfo.setPages(originalPageInfo.getPages()); // 复用总页数
 
         return PageResult.of(voPageInfo);
+    }
+
+    /**
+     * 根据题型ID和数量，获取题目列表（包含选项）
+     * @param typeId 题型ID
+     * @param count 题目数量
+     * @return 封装后的题目VO列表
+     */
+    public List<TestQuestionVO> getQuestionListByTypeId(Integer typeId, Integer count) {
+        List<TestQuestionVO> questionVOList = new ArrayList<>();
+
+        // 校验数量
+        if (count <= 0) {
+            return questionVOList;
+        }
+
+        // 1. 先查询该题型下的题目ID（随机获取，复用你原有Service的逻辑，避免大表性能问题）
+        Set<Long> questionIdSet = new LinkedHashSet<>();
+        int total = itemBankMapper.countByType(typeId); // 先查该题型总题数
+        if (total < count) {
+            log.warn("题型ID:{} 题库不足，需要{}道，现有{}道", typeId, count, total);
+            return questionVOList;
+        }
+
+        // 随机获取题目ID（你的原有随机偏移采样逻辑，性能更优）
+        int pageSize = Math.min(count, 50);
+        while (questionIdSet.size() < count) {
+            int maxStart = Math.max(total - pageSize, 0);
+            int offset = maxStart == 0 ? 0 : ThreadLocalRandom.current().nextInt(0, maxStart + 1);
+            List<Long> batchIdList = itemBankMapper.selectIdsByTypeWithOffset(typeId, pageSize, offset);
+            for (Long questionId : batchIdList) {
+                questionIdSet.add(questionId);
+                if (questionIdSet.size() >= count) {
+                    break;
+                }
+            }
+        }
+
+        // 2. 根据题目ID查询题目详情和选项
+        for (Long questionId : questionIdSet) {
+            // 查询题目详情
+            ItemBank itemBank = itemBankMapper.selectById(questionId);
+            if (itemBank == null) {
+                continue;
+            }
+
+            // 封装题目VO
+            TestQuestionVO testQuestionVO = new TestQuestionVO();
+            testQuestionVO.setQuestionId(questionId); // 题目ID
+            testQuestionVO.setTypeId(typeId); // 题型ID
+            testQuestionVO.setTypeName(itemBank.getTypeName()); // 题型名称
+            testQuestionVO.setContent(itemBank.getContent()); // 题目内容
+            testQuestionVO.setExplanation(itemBank.getExplanation()); // 题目解析（可选）
+
+            // 3. 查询该题的选项
+            List<ItemOption> itemOptionList = itemOptionMapper.selectByItemId(questionId);
+            List<TestOptionVO> optionVOList = new ArrayList<>();
+            for (ItemOption itemOption : itemOptionList) {
+                TestOptionVO testOptionVO = new TestOptionVO();
+                testOptionVO.setOptionTitle(itemOption.getOptionTitle()); // 选项内容（如A、B、C或对、错）
+                testOptionVO.setIsCorrect(itemOption.getIsCorrect()); // 是否正确选项（前端可根据此字段判断答案）
+                optionVOList.add(testOptionVO);
+            }
+            testQuestionVO.setOptionList(optionVOList); // 设置选项列表
+
+            questionVOList.add(testQuestionVO);
+        }
+
+        return questionVOList;
     }
 }
 

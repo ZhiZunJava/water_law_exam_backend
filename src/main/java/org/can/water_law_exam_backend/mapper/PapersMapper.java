@@ -12,4 +12,8 @@ public interface PapersMapper {
     int deleteBatch(@Param("ids") List<Long> ids);
     Papers selectById(@Param("id") Long id);
     List<Papers> selectByPage(@Param("key") String key);
+    List<Papers> selectByGroupId(@Param("groupId") Long groupId);
+    List<Papers> selectByGroupIds(@Param("groupIds") List<Long> groupIds);
+    Papers selectByGroupAndNo(@Param("groupId") Long groupId,
+                              @Param("papersNo") Integer papersNo);
 }

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.can.water_law_exam_backend.mapper.ExamScoreMapper">
+
+    <resultMap id="BaseResultMap" type="org.can.water_law_exam_backend.entity.ExamScore">
+        <id property="id" column="id"/>
+        <result property="batchId" column="batch_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="totalScore" column="total_score"/>
+        <result property="passScore" column="pass_score"/>
+        <result property="isPass" column="is_pass"/>
+        <result property="examDuration" column="exam_duration"/>
+        <result property="submitTime" column="submit_time"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="selectByBatchAndUser" resultMap="BaseResultMap">
+        SELECT *
+        FROM tb_exam_score
+        WHERE batch_id = #{batchId}
+          AND user_id = #{userId}
+    </select>
+
+    <insert id="insert" parameterType="org.can.water_law_exam_backend.entity.ExamScore"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_exam_score (batch_id, user_id, total_score, pass_score, is_pass, exam_duration, submit_time)
+        VALUES (#{batchId}, #{userId}, #{totalScore}, #{passScore}, #{isPass}, #{examDuration}, #{submitTime})
+    </insert>
+
+    <update id="update" parameterType="org.can.water_law_exam_backend.entity.ExamScore">
+        UPDATE tb_exam_score
+        SET total_score   = #{totalScore},
+            pass_score    = #{passScore},
+            is_pass       = #{isPass},
+            exam_duration = #{examDuration},
+            submit_time   = #{submitTime}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 分页+条件检索成绩（根据 c 分类标识进行过滤） -->
+    <select id="selectByBatchAndFilter" resultMap="BaseResultMap">
+        SELECT s.*
+        FROM tb_exam_score s
+                 INNER JOIN tb_account_user u ON s.user_id = u.id
+        <where>
+            s.batch_id = #{batchId}
+            <if test="key != null and key != ''">
+                AND u.name LIKE CONCAT('%', #{key}, '%')
+            </if>
+            <!-- c 分类规则：
+                 0-含未提交；1-已提交不及格+未提交；
+                 2-已提交（及格+不及格）；3-已提交不及格；4-已提交及格
+            -->
+            <if test="c != null">
+                <choose>
+                    <!-- 0：含未提交（不额外过滤，前端可根据 submitted 字段识别） -->
+                    <when test="c == 0">
+                        <!-- no extra filter -->
+                    </when>
+                    <!-- 1：已提交不及格 + 未提交 -->
+                    <when test="c == 1">
+                        AND (s.is_pass = FALSE OR s.submit_time IS NULL)
+                    </when>
+                    <!-- 2：已提交（及格+不及格） -->
+                    <when test="c == 2">
+                        AND s.submit_time IS NOT NULL
+                    </when>
+                    <!-- 3：已提交不及格 -->
+                    <when test="c == 3">
+                        AND s.submit_time IS NOT NULL
+                        AND s.is_pass = FALSE
+                    </when>
+                    <!-- 4：已提交及格 -->
+                    <when test="c == 4">
+                        AND s.submit_time IS NOT NULL
+                        AND s.is_pass = TRUE
+                    </when>
+                </choose>
+            </if>
+        </where>
+        ORDER BY s.id DESC
+    </select>
+
+    <!-- 导出指定批次中成绩合格学员的成绩 -->
+    <select id="selectPassByBatch" resultMap="BaseResultMap">
+        SELECT *
+        FROM tb_exam_score
+        WHERE batch_id = #{batchId}
+          AND is_pass = TRUE
+    </select>
+
+</mapper>
+
+

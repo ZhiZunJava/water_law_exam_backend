@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.can.water_law_exam_backend.mapper.ExamineeMapper">
+
+    <resultMap id="BaseResultMap" type="org.can.water_law_exam_backend.entity.Examinee">
+        <id property="id" column="id"/>
+        <result property="batchId" column="batch_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="papersNo" column="papers_no"/>
+        <result property="reviewStatus" column="review_status"/>
+        <result property="examStarted" column="exam_started"/>
+        <result property="examStartTime" column="exam_start_time"/>
+        <result property="submitted" column="submitted"/>
+        <result property="submitTime" column="submit_time"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <insert id="insertBatch">
+        INSERT INTO tb_examinee (batch_id, user_id, papers_no, review_status, exam_started, exam_start_time, submitted, submit_time)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.batchId}, #{item.userId}, #{item.papersNo}, #{item.reviewStatus}, #{item.examStarted}, #{item.examStartTime}, #{item.submitted}, #{item.submitTime})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        papers_no    = VALUES(papers_no),
+        review_status = VALUES(review_status),
+        exam_started = VALUES(exam_started),
+        exam_start_time = VALUES(exam_start_time),
+        submitted = VALUES(submitted),
+        submit_time = VALUES(submit_time)
+    </insert>
+
+    <delete id="deleteByBatchAndUserIds">
+        DELETE FROM tb_examinee
+        WHERE batch_id = #{batchId}
+          AND user_id IN
+          <foreach collection="userIds" item="uid" open="(" close=")" separator=",">
+              #{uid}
+          </foreach>
+    </delete>
+
+    <!-- 8.2.3 已加入批次的考生分页列表 -->
+    <select id="selectByBatch" resultMap="BaseResultMap">
+        SELECT e.*
+        FROM tb_examinee e
+                 INNER JOIN tb_account_user u ON e.user_id = u.id
+                 LEFT JOIN tb_organization o ON u.org_id = o.id
+        <where>
+            e.batch_id = #{batchId}
+            <if test="key != null and key != ''">
+                AND (u.name LIKE CONCAT('%', #{key}, '%')
+                    OR u.id_no LIKE CONCAT('%', #{key}, '%')
+                    OR o.org_name LIKE CONCAT('%', #{key}, '%'))
+            </if>
+            <if test="status != null">
+                AND e.review_status = #{status}
+            </if>
+        </where>
+        ORDER BY e.id DESC
+    </select>
+
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        SELECT *
+        FROM tb_examinee
+        WHERE user_id = #{userId}
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectByUserAndBatch" resultMap="BaseResultMap">
+        SELECT *
+        FROM tb_examinee
+        WHERE user_id = #{userId}
+          AND batch_id = #{batchId}
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectUnsubmittedByUser" resultMap="BaseResultMap">
+        SELECT *
+        FROM tb_examinee
+        WHERE user_id = #{userId}
+          AND submitted = FALSE
+        ORDER BY id DESC
+    </select>
+
+    <!-- 8.2.5 可添加考生列表：只返回满足条件的 user_id，后续再查询用户信息 -->
+    <select id="selectOptionalUserIds" resultType="long">
+        SELECT u.id
+        FROM tb_account_user u
+                 LEFT JOIN tb_organization o ON u.org_id = o.id
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM tb_examinee e
+            WHERE e.batch_id = #{batchId}
+              AND e.user_id = u.id
+        )
+          <if test="key != null and key != ''">
+              AND (u.name LIKE CONCAT('%', #{key}, '%')
+                  OR u.id_no LIKE CONCAT('%', #{key}, '%')
+                  OR o.org_name LIKE CONCAT('%', #{key}, '%'))
+          </if>
+        ORDER BY u.id DESC
+    </select>
+
+    <!-- 8.2.6 审核：批量更新 review_status -->
+    <update id="updateReviewStatus">
+        UPDATE tb_examinee
+        SET review_status = #{status}
+        WHERE batch_id = #{batchId}
+          AND user_id IN
+              <foreach collection="ids" item="uid" open="(" close=")" separator=",">
+                  #{uid}
+              </foreach>
+    </update>
+
+</mapper>
+
+

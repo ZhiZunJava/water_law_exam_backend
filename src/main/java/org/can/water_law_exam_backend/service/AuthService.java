@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.can.water_law_exam_backend.config.JwtProperties;
 import org.can.water_law_exam_backend.dto.request.auth.LoginRequest;
 import org.can.water_law_exam_backend.dto.request.auth.RegisterRequest;
+import org.can.water_law_exam_backend.dto.request.auth.UserPasswordUpdateRequest;
+import org.can.water_law_exam_backend.dto.request.auth.UserProfileUpdateRequest;
 import org.can.water_law_exam_backend.dto.response.auth.CurrentUserResponse;
 import org.can.water_law_exam_backend.dto.response.auth.LoginResponse;
 import org.can.water_law_exam_backend.dto.response.auth.RegisterResponse;
@@ -47,6 +49,7 @@ public class AuthService {
     private final AdminMapper adminMapper;
     private final AccountUserMapper accountUserMapper;
     private final PasswordEncoder passwordEncoder;
+    private final org.can.water_law_exam_backend.mapper.OrganizationMapper organizationMapper;
 
     /**
      * 管理员登录
@@ -346,6 +349,100 @@ public class AuthService {
         } catch (Exception e) {
             log.error("注册异常：身份证号={}", request.getIdNo(), e);
             throw new BusinessException(500, "注册失败，请稍后重试");
+        }
+    }
+
+    /**
+     * 获取当前登录的 LoginUser（从 SecurityContext）
+     */
+    private LoginUser currentLoginUser() {
+        Authentication authentication = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof LoginUser)) {
+            throw new BusinessException(401, "未登录或登录状态已失效");
+        }
+        return (LoginUser) authentication.getPrincipal();
+    }
+
+    /**
+     * 学员修改个人基本信息（姓名、手机号）
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updateCurrentUserProfile(UserProfileUpdateRequest request) {
+        LoginUser loginUser = currentLoginUser();
+        if (!"user".equalsIgnoreCase(loginUser.getUserType())) {
+            throw new BusinessException(403, "只有学员可以修改个人信息");
+        }
+        Long userId = loginUser.getUserId();
+        AccountUser user = accountUserMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException(404, "学员不存在");
+        }
+        if (Boolean.TRUE.equals(user.getLocked())) {
+            throw new BusinessException(403, "该账号已被禁用");
+        }
+
+        // 检查身份证号是否与其他学员重复
+        AccountUser existingByIdNo = accountUserMapper.selectByIdNo(request.getIdNo());
+        if (existingByIdNo != null && !existingByIdNo.getId().equals(userId)) {
+            throw new BusinessException(400, "身份证号已存在");
+        }
+
+        // 检查手机号是否与其他学员重复
+        AccountUser existingByPhone = accountUserMapper.selectByPhone(request.getPhone());
+        if (existingByPhone != null && !existingByPhone.getId().equals(userId)) {
+            throw new BusinessException(400, "该手机号已被使用");
+        }
+
+        // 检查单位是否存在
+        String orgName = accountUserMapper.selectOrgNameById(request.getOrgId());
+        if (orgName == null) {
+            throw new BusinessException(400, "所选单位不存在");
+        }
+
+        user.setName(request.getName().trim());
+        user.setIdNo(request.getIdNo().trim());
+        user.setPhone(request.getPhone().trim());
+        user.setOrgId(request.getOrgId());
+        user.setUpdateTime(LocalDateTime.now());
+
+        int rows = accountUserMapper.update(user);
+        if (rows == 0) {
+            throw new BusinessException(500, "更新个人信息失败");
+        }
+    }
+
+    /**
+     * 学员修改登录密码
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updateCurrentUserPassword(UserPasswordUpdateRequest request) {
+        LoginUser loginUser = currentLoginUser();
+        if (!"user".equalsIgnoreCase(loginUser.getUserType())) {
+            throw new BusinessException(403, "只有学员可以修改密码");
+        }
+        Long userId = loginUser.getUserId();
+        AccountUser user = accountUserMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException(404, "学员不存在");
+        }
+        if (Boolean.TRUE.equals(user.getLocked())) {
+            throw new BusinessException(403, "该账号已被禁用");
+        }
+
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new BusinessException(400, "两次输入的新密码不一致");
+        }
+
+        // 校验原密码
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPwd())) {
+            throw new BusinessException(400, "原密码不正确");
+        }
+
+        String encoded = passwordEncoder.encode(request.getNewPassword());
+        int rows = accountUserMapper.updatePassword(userId, encoded);
+        if (rows == 0) {
+            throw new BusinessException(500, "修改密码失败");
         }
     }
 }

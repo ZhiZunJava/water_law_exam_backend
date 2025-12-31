@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.can.water_law_exam_backend.mapper.ExamBatchMapper">
+
+    <resultMap id="ExamBatchResultMap" type="org.can.water_law_exam_backend.entity.ExamBatch">
+        <id property="id" column="id"/>
+        <result property="batchName" column="batch_name"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="prepareMinutes" column="prepare_minutes"/>
+        <result property="advanceMinutes" column="advance_minutes"/>
+        <result property="lateMinutes" column="late_minutes"/>
+        <result property="optionsRandom" column="options_random"/>
+        <result property="itemRandom" column="item_random"/>
+        <result property="papersId" column="papers_id"/>
+        <result property="selfJoin" column="self_join"/>
+        <result property="reviewRequired" column="review_required"/>
+        <result property="released" column="released"/>
+        <result property="papersDistributed" column="papers_distributed"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="org.can.water_law_exam_backend.entity.ExamBatch"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_exam_batch
+        (batch_name, start_time, end_time,
+         prepare_minutes, advance_minutes, late_minutes,
+         options_random, item_random, papers_id,
+         self_join, review_required,
+         released, papers_distributed)
+        VALUES (#{batchName}, #{startTime}, #{endTime},
+                #{prepareMinutes}, #{advanceMinutes}, #{lateMinutes},
+                #{optionsRandom}, #{itemRandom}, #{papersId},
+                #{selfJoin}, #{reviewRequired},
+                #{released}, #{papersDistributed})
+    </insert>
+
+    <update id="update" parameterType="org.can.water_law_exam_backend.entity.ExamBatch">
+        UPDATE tb_exam_batch
+        SET batch_name        = #{batchName},
+            start_time        = #{startTime},
+            end_time          = #{endTime},
+            prepare_minutes   = #{prepareMinutes},
+            advance_minutes   = #{advanceMinutes},
+            late_minutes      = #{lateMinutes},
+            options_random    = #{optionsRandom},
+            item_random       = #{itemRandom},
+            papers_id         = #{papersId},
+            self_join         = #{selfJoin},
+            review_required   = #{reviewRequired},
+            released          = #{released},
+            papers_distributed = #{papersDistributed}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteBatch">
+        DELETE FROM tb_exam_batch
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectById" resultMap="ExamBatchResultMap">
+        SELECT *
+        FROM tb_exam_batch
+        WHERE id = #{id}
+    </select>
+
+    <!-- 已启用但未开始：已发布且试卷已分发，当前时间在开始前或进行中 -->
+    <select id="selectEnabledNotStarted" resultMap="ExamBatchResultMap">
+        SELECT *
+        FROM tb_exam_batch
+        WHERE released = TRUE
+          AND papers_distributed = TRUE
+          AND start_time > #{now}
+    </select>
+
+    <!-- 可报名批次：已发布、未分发试卷、考试未开始 -->
+    <select id="selectJoinable" resultMap="ExamBatchResultMap">
+        SELECT *
+        FROM tb_exam_batch
+        WHERE released = TRUE
+          AND papers_distributed = FALSE
+          AND start_time > #{now}
+        ORDER BY start_time ASC
+    </select>
+
+    <!-- 分页检索：按名称关键字、状态过滤 -->
+    <select id="selectByPage" resultMap="ExamBatchResultMap">
+        SELECT *
+        FROM tb_exam_batch
+        <where>
+            <if test="key != null and key != ''">
+                AND batch_name LIKE CONCAT('%', #{key}, '%')
+            </if>
+            <if test="lock != null">
+                <!-- lock=true 表示未启用；false 表示启用 -->
+                <if test="lock">
+                    AND NOT (released = TRUE AND papers_distributed = TRUE)
+                </if>
+                <if test="lock == false">
+                    AND released = TRUE
+                    AND papers_distributed = TRUE
+                </if>
+            </if>
+        </where>
+        ORDER BY id DESC
+    </select>
+
+</mapper>
+
+

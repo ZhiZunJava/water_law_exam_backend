@@ -9,6 +9,7 @@ import org.can.water_law_exam_backend.dto.request.template.TemplatePageRequest;
 import org.can.water_law_exam_backend.dto.response.common.PageResult;
 import org.can.water_law_exam_backend.dto.response.papers.PapersAbstractVO;
 import org.can.water_law_exam_backend.dto.response.papers.PapersContentVO;
+import org.can.water_law_exam_backend.dto.response.papers.PapersGroupVO;
 import org.can.water_law_exam_backend.dto.response.papers.PapersListVO;
 import org.can.water_law_exam_backend.service.PapersService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,11 +37,11 @@ public class PapersController {
     }
 
     /**
-     * 7.2.2 获取试卷列表（分页）
+     * 7.2.2 获取试卷组列表（分页）
      */
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/pages")
-    public Result<PageResult<PapersListVO>> pages(@Valid @RequestBody TemplatePageRequest request) {
+    public Result<PageResult<PapersGroupVO>> pages(@Valid @RequestBody TemplatePageRequest request) {
         return Result.success(service.pages(request));
     }
 
@@ -55,20 +56,20 @@ public class PapersController {
     }
 
     /**
-     * 7.2.4 获取试卷摘要信息
+     * 7.2.4 获取试卷摘要信息（按试卷组ID）
      */
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/abstract/{id}")
-    public Result<PapersAbstractVO> abstractInfo(@PathVariable Long id) {
-        return Result.success(service.abstractInfo(id));
+    @GetMapping("/abstract/{groupId}")
+    public Result<PapersAbstractVO> abstractInfo(@PathVariable Long groupId) {
+        return Result.success(service.abstractInfo(groupId));
     }
 
     /**
-     * 7.2.5 获取试卷试题内容
+     * 7.2.5 获取试卷试题内容（按试卷组ID + 试卷序号）
      */
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/ctt/{id}/{no}")
-    public Result<PapersContentVO> content(@PathVariable Long id, @PathVariable Integer no) {
-        return Result.success(service.content(id, no));
+    @GetMapping("/ctt/{groupId}/{no}")
+    public Result<PapersContentVO> content(@PathVariable Long groupId, @PathVariable Integer no) {
+        return Result.success(service.content(groupId, no, true));
     }
 }
